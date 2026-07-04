@@ -30,6 +30,10 @@ const RADIUS := 16
 const BUTTON_HEIGHT := 108
 const BUTTON_HEIGHT_SMALL := 84
 const TOUCH_MIN := 88.0
+const MAP_MIN_HEIGHT := 820
+const BOTTOM_SHEET_HEIGHT := 820
+const MODAL_WIDTH := 920
+const MODAL_HEIGHT := 1040
 
 # ---------- Animation durations ----------
 const ANIM_FAST := 0.12
@@ -37,6 +41,8 @@ const ANIM_MED := 0.25
 const ANIM_SLOW := 0.5
 
 # ---------- Font sizes (before text-scale) ----------
+const FS_MICRO := 20
+const FS_TINY := 22
 const FS_SMALL := 26
 const FS_BODY := 30
 const FS_LARGE := 36
@@ -90,6 +96,7 @@ func title(text: String, size: int = FS_TITLE, color: Color = ACCENT) -> Label:
 func button(text: String, kind: String = "ghost", small: bool = false) -> Button:
 	var b := Button.new()
 	b.text = text
+	b.clip_text = true
 	style_button(b, kind, small)
 	b.pressed.connect(func() -> void:
 		AudioManager.play_click()

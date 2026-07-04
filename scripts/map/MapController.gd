@@ -5,6 +5,9 @@ extends Node2D
 
 signal region_tapped(region_id: String)
 
+const DESIGN_RECT := Rect2(0.0, 320.0, 1080.0, 1130.0)
+const FIT_PADDING := 14.0
+
 var _region_nodes: Dictionary = {}   # id -> RegionNode
 var _lines: Array[SignalLine] = []
 var _line_pairs: Array = []          # parallel array of [id_a, id_b]
@@ -86,6 +89,17 @@ func play_scan(region_id: String) -> void:
 		node.play_ripple()
 
 
+func fit_to_rect(target_size: Vector2) -> void:
+	if target_size.x <= 1.0 or target_size.y <= 1.0:
+		return
+	var usable_width: float = maxf(target_size.x - FIT_PADDING * 2.0, 1.0)
+	var usable_height: float = maxf(target_size.y - FIT_PADDING * 2.0, 1.0)
+	var fit_scale: float = minf(usable_width / DESIGN_RECT.size.x, usable_height / DESIGN_RECT.size.y)
+	scale = Vector2.ONE * fit_scale
+	position = (target_size - DESIGN_RECT.size * fit_scale) * 0.5 - DESIGN_RECT.position * fit_scale
+	queue_redraw()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if input_locked:
 		return
@@ -116,7 +130,7 @@ func _draw() -> void:
 		draw_line(Vector2(40, y), Vector2(1040, y), grid, 1.0)
 	# Faint frame corners for the intelligence-room feel.
 	var frame := Color(UITheme.ACCENT_DIM.r, UITheme.ACCENT_DIM.g, UITheme.ACCENT_DIM.b, 0.5)
-	var corners := [Vector2(40, top), Vector2(1040, top), Vector2(40, bottom), Vector2(1040, bottom)]
+	var corners: Array[Vector2] = [Vector2(40, top), Vector2(1040, top), Vector2(40, bottom), Vector2(1040, bottom)]
 	for c in corners:
 		var dx := 24.0 if c.x < 500 else -24.0
 		var dy := 24.0 if c.y < 800 else -24.0

@@ -14,6 +14,7 @@ var campaign_seed: int = 0
 var campaign_active: bool = false
 var game_over: bool = false
 var tutorial_done: bool = false
+var directive_seen: bool = false
 
 # ---------- Resources ----------
 var intel: int = 0
@@ -45,6 +46,7 @@ func new_campaign(new_difficulty: int) -> void:
 	turn = 1
 	game_over = false
 	campaign_active = true
+	directive_seen = false
 	funds_warning = false
 	intel = Balance.START_INTEL[difficulty]
 	funds = Balance.START_FUNDS[difficulty]
@@ -177,7 +179,7 @@ func apply_effects(effects: Dictionary) -> Array[String]:
 	var res_delta := {}
 	for key in ["intel", "funds", "trust", "heat", "cover", "global_exposure", "rival_momentum", "rival_exposure"]:
 		if effects.has(key):
-			var val := float(effects[key])
+			var val: float = float(effects[key])
 			if _is_harmful(key, val):
 				val = val * severity
 			res_delta[key] = int(round(val))
@@ -188,17 +190,17 @@ func apply_effects(effects: Dictionary) -> Array[String]:
 	var target: Dictionary = _random_active_region()
 	if not target.is_empty():
 		if effects.has("region_stability"):
-			var v := int(round(float(effects["region_stability"]) * (severity if float(effects["region_stability"]) < 0 else 1.0)))
+			var v: int = int(round(float(effects["region_stability"]) * (severity if float(effects["region_stability"]) < 0 else 1.0)))
 			target["stability"] = clampi(int(target["stability"]) + v, 0, 100)
 			lines.append("%s stability %s%d" % [target["name"], "+" if v >= 0 else "", v])
 			region_updated.emit(target["id"])
 		if effects.has("region_rival"):
-			var v2 := int(round(float(effects["region_rival"]) * (severity if float(effects["region_rival"]) > 0 else 1.0)))
+			var v2: int = int(round(float(effects["region_rival"]) * (severity if float(effects["region_rival"]) > 0 else 1.0)))
 			target["rival_influence"] = clampi(int(target["rival_influence"]) + v2, 0, 100)
 			lines.append("%s rival influence %s%d" % [target["name"], "+" if v2 >= 0 else "", v2])
 			region_updated.emit(target["id"])
 		if effects.has("region_pressure"):
-			var v3 := int(effects["region_pressure"])
+			var v3: int = int(effects["region_pressure"])
 			target["public_pressure"] = clampi(int(target["public_pressure"]) + v3, 0, 100)
 			lines.append("%s public pressure %s%d" % [target["name"], "+" if v3 >= 0 else "", v3])
 			region_updated.emit(target["id"])
@@ -207,7 +209,7 @@ func apply_effects(effects: Dictionary) -> Array[String]:
 			lines.append("Rival presence in %s charted (Intel Level 2)" % target["name"])
 			region_updated.emit(target["id"])
 		if effects.has("reveal_tag"):
-			var hidden := regions.filter(func(r): return not r["tag_revealed"] and not r["collapsed"])
+			var hidden: Array = regions.filter(func(r): return not r["tag_revealed"] and not r["collapsed"])
 			if not hidden.is_empty():
 				var reg: Dictionary = RandomService.pick(hidden)
 				reg["tag_revealed"] = true
@@ -215,7 +217,7 @@ func apply_effects(effects: Dictionary) -> Array[String]:
 				region_updated.emit(reg["id"])
 
 	if effects.has("all_stability"):
-		var v4 := int(round(float(effects["all_stability"]) * (severity if float(effects["all_stability"]) < 0 else 1.0)))
+		var v4: int = int(round(float(effects["all_stability"]) * (severity if float(effects["all_stability"]) < 0 else 1.0)))
 		for r in active_regions():
 			r["stability"] = clampi(int(r["stability"]) + v4, 0, 100)
 		lines.append("All regions stability %s%d" % ["+" if v4 >= 0 else "", v4])
@@ -224,7 +226,7 @@ func apply_effects(effects: Dictionary) -> Array[String]:
 		a["fatigue"] = clampi(int(a["fatigue"]) + int(effects["agent_fatigue"]), 0, 100)
 		lines.append("%s fatigue +%d" % [a["name"], int(effects["agent_fatigue"])])
 	if effects.has("agent_rest"):
-		var tired := agents.filter(func(ag): return int(ag["fatigue"]) > 0)
+		var tired: Array = agents.filter(func(ag): return int(ag["fatigue"]) > 0)
 		if not tired.is_empty():
 			var a2: Dictionary = RandomService.pick(tired)
 			a2["fatigue"] = maxi(0, int(a2["fatigue"]) - int(effects["agent_rest"]))
@@ -288,6 +290,7 @@ func to_dict() -> Dictionary:
 		"turn": turn,
 		"seed": campaign_seed,
 		"tutorial_done": tutorial_done,
+		"directive_seen": directive_seen,
 		"intel": intel, "funds": funds, "trust": trust, "heat": heat, "cover": cover,
 		"funds_warning": funds_warning,
 		"global_exposure": global_exposure,
@@ -306,6 +309,7 @@ func from_dict(d: Dictionary) -> void:
 	campaign_seed = int(d.get("seed", 0))
 	RandomService.reseed(campaign_seed + turn)
 	tutorial_done = bool(d.get("tutorial_done", false))
+	directive_seen = bool(d.get("directive_seen", false))
 	intel = int(d.get("intel", 0))
 	funds = int(d.get("funds", 0))
 	trust = int(d.get("trust", 0))

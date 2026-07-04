@@ -108,6 +108,8 @@ func _draw() -> void:
 		var sel_pulse := 1.0 if SettingsManager.reduce_motion else 0.7 + 0.3 * sin(_pulse_t * 6.0)
 		draw_arc(Vector2.ZERO, RADIUS + 12.0, 0, TAU, 48,
 			Color(UITheme.ACCENT.r, UITheme.ACCENT.g, UITheme.ACCENT.b, 0.9 * sel_pulse), 3.0, true)
+	elif _needs_pulse():
+		_draw_warning_marker(state_color)
 
 	# Scan ripple.
 	if _ripple_t >= 0.0:
@@ -117,14 +119,17 @@ func _draw() -> void:
 
 	# Name label.
 	var font := ThemeDB.fallback_font
-	var fsize := UITheme.fs(22)
-	var display := region_name if not _collapsed else region_name + " (LOST)"
+	var fsize := UITheme.fs(UITheme.FS_MICRO)
+	var display := region_name
 	var text_color := UITheme.TEXT if not _collapsed else UITheme.COLLAPSED
-	draw_string(font, Vector2(-110, RADIUS + 46.0), display,
-		HORIZONTAL_ALIGNMENT_CENTER, 220, fsize, text_color)
-	if _tag_revealed and not _collapsed:
-		draw_string(font, Vector2(-110, RADIUS + 72.0), "[" + _tag_text() + "]",
-			HORIZONTAL_ALIGNMENT_CENTER, 220, UITheme.fs(18), UITheme.TEXT_DIM)
+	draw_string(font, Vector2(-95, RADIUS + 42.0), display,
+		HORIZONTAL_ALIGNMENT_CENTER, 190, fsize, text_color)
+	if selected and _tag_revealed and not _collapsed:
+		draw_string(font, Vector2(-95, RADIUS + 66.0), "[" + _tag_text() + "]",
+			HORIZONTAL_ALIGNMENT_CENTER, 190, UITheme.fs(18), UITheme.TEXT_DIM)
+	elif _collapsed:
+		draw_string(font, Vector2(-95, RADIUS + 66.0), "[LOST]",
+			HORIZONTAL_ALIGNMENT_CENTER, 190, UITheme.fs(18), UITheme.COLLAPSED)
 
 
 func _tag_text() -> String:
@@ -147,10 +152,18 @@ func _state_color() -> Color:
 func _draw_cracks() -> void:
 	# Desaturated cracked look for collapsed regions.
 	var c := Color(UITheme.COLLAPSED.r, UITheme.COLLAPSED.g, UITheme.COLLAPSED.b, 0.8)
-	var seeds := [0.3, 1.4, 2.6, 3.9, 5.1]
+	var seeds: Array[float] = [0.3, 1.4, 2.6, 3.9, 5.1]
 	for s in seeds:
 		var a := Vector2(cos(s), sin(s)) * 8.0
 		var b := Vector2(cos(s + 0.4), sin(s + 0.4)) * (RADIUS - 8.0)
 		var mid := (a + b) * 0.5 + Vector2(cos(s * 3.0), sin(s * 2.0)) * 8.0
 		draw_line(a, mid, c, 1.5, true)
 		draw_line(mid, b, c, 1.5, true)
+
+
+func _draw_warning_marker(color: Color) -> void:
+	var font := ThemeDB.fallback_font
+	var center := Vector2(RADIUS - 7.0, -RADIUS + 7.0)
+	draw_circle(center, 11.0, Color(color.r, color.g, color.b, 0.82))
+	draw_string(font, center + Vector2(-4.0, 7.0), "!",
+		HORIZONTAL_ALIGNMENT_CENTER, 8, UITheme.fs(16), UITheme.BG_DEEP)

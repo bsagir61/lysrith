@@ -10,11 +10,11 @@ signal tutorial_finished
 ## Steps with advance "tap" continue when the banner itself is tapped.
 const STEPS: Array = [
 	{"advance": "region_selected", "text": "Welcome, Director. Tap any region node on the map to open its dossier."},
-	{"advance": "region_read", "text": "This is the region dossier. Stability, Rival Influence and Surveillance decide how risky work here will be. Tap PLAN OPERATION."},
+	{"advance": "region_read", "text": "This is the region dossier. Stability, Rival Influence and Surveillance decide how risky work here will be. Tap CHOOSE AGENT."},
 	{"advance": "roster_opened", "text": "Every operation needs an agent. This is your roster."},
 	{"advance": "agent_selected", "text": "Each agent is better at some work than others. Select any agent to continue."},
 	{"advance": "map_signals_selected", "text": "Operations show cost, odds and Heat before you commit. Choose MAP SIGNALS - the safest way to learn a region."},
-	{"advance": "operation_resolved", "text": "Confirm the operation and read the debrief."},
+	{"advance": "operation_resolved", "text": "Run the operation and read the debrief."},
 	{"advance": "tap", "text": "INTEL is your analytical currency. Spend it on Deep Analysis and predictions. Earn it by mapping signals. (Tap to continue)"},
 	{"advance": "tap", "text": "HEAT is how visible you are. High Heat feeds Global Exposure and triggers hostile events. Cool it down before it burns you. (Tap to continue)"},
 	{"advance": "tap", "text": "RIVAL NETWORK EXPOSURE is your victory meter. Build local networks, then run Trace Rival Cell to push it to 100. (Tap to continue)"},

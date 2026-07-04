@@ -6,19 +6,19 @@ extends Node
 signal step_changed(text: String)
 signal tutorial_finished
 
-## Each step: text shown in the tutorial banner + the action that advances it.
+## Each step: localization key shown in the tutorial banner + the action that advances it.
 ## Steps with advance "tap" continue when the banner itself is tapped.
 const STEPS: Array = [
-	{"advance": "region_selected", "text": "Welcome, Director. Tap any region node on the map to open its dossier."},
-	{"advance": "region_read", "text": "This is the region dossier. Stability, Rival Influence and Surveillance decide how risky work here will be. Tap CHOOSE AGENT."},
-	{"advance": "roster_opened", "text": "Every operation needs an agent. This is your roster."},
-	{"advance": "agent_selected", "text": "Each agent is better at some work than others. Select any agent to continue."},
-	{"advance": "map_signals_selected", "text": "Operations show cost, odds and Heat before you commit. Choose MAP SIGNALS - the safest way to learn a region."},
-	{"advance": "operation_resolved", "text": "Run the operation and read the debrief."},
-	{"advance": "tap", "text": "INTEL is your analytical currency. Spend it on Deep Analysis and predictions. Earn it by mapping signals. (Tap to continue)"},
-	{"advance": "tap", "text": "HEAT is how visible you are. High Heat feeds Global Exposure and triggers hostile events. Cool it down before it burns you. (Tap to continue)"},
-	{"advance": "tap", "text": "RIVAL NETWORK EXPOSURE is your victory meter. Build local networks, then run Trace Rival Cell to push it to 100. (Tap to continue)"},
-	{"advance": "tap", "text": "The rest is judgment. Watch the map, spend carefully, and expose them before the world unravels. Good luck, Director. (Tap to finish)"},
+	{"advance": "region_selected", "text_key": "tutorial.region"},
+	{"advance": "region_read", "text_key": "tutorial.region_read"},
+	{"advance": "roster_opened", "text_key": "tutorial.roster"},
+	{"advance": "agent_selected", "text_key": "tutorial.agent"},
+	{"advance": "map_signals_selected", "text_key": "tutorial.map_signals"},
+	{"advance": "operation_resolved", "text_key": "tutorial.resolve"},
+	{"advance": "tap", "text_key": "tutorial.intel"},
+	{"advance": "tap", "text_key": "tutorial.heat"},
+	{"advance": "tap", "text_key": "tutorial.rival"},
+	{"advance": "tap", "text_key": "tutorial.finish"},
 ]
 
 var active: bool = false
@@ -37,7 +37,7 @@ func start() -> void:
 
 func current_text() -> String:
 	if step_index < STEPS.size():
-		return STEPS[step_index]["text"]
+		return L10n.t(String(STEPS[step_index]["text_key"]))
 	return ""
 
 

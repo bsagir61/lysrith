@@ -47,7 +47,7 @@ func open(title_text: String, kind: String, lines: Array, before: Dictionary) ->
 		child.queue_free()
 
 	var accent: Color = {"success": UITheme.SAFE, "fail": UITheme.DANGER, "neutral": UITheme.ACCENT}.get(kind, UITheme.ACCENT)
-	_content.add_child(UITheme.label("OPERATION DEBRIEF", UITheme.FS_TINY, UITheme.TEXT_DIM))
+	_content.add_child(UITheme.label(L10n.t("debrief.title"), UITheme.FS_TINY, UITheme.TEXT_DIM))
 	_content.add_child(UITheme.label(title_text.to_upper(), UITheme.FS_BODY, accent))
 	_content.add_child(UITheme.hseparator())
 
@@ -70,12 +70,12 @@ func open(title_text: String, kind: String, lines: Array, before: Dictionary) ->
 	var meters := HBoxContainer.new()
 	meters.add_theme_constant_override("separation", UITheme.SPACE_S)
 	_content.add_child(meters)
-	_add_counter(meters, "GLOBAL", float(before.get("global_exposure", 0)), GameState.global_exposure, UITheme.DANGER)
-	_add_counter(meters, "RIVAL", float(before.get("rival_exposure", 0)), GameState.rival_exposure, UITheme.ACCENT)
-	_add_counter(meters, "HEAT", float(before.get("heat", 0)), float(GameState.heat), UITheme.WARN)
-	_add_counter(meters, "FUNDS", float(before.get("funds", 0)), float(GameState.funds), UITheme.TEXT)
+	_add_counter(meters, L10n.t("debrief.global"), float(before.get("global_exposure", 0)), GameState.global_exposure, UITheme.DANGER)
+	_add_counter(meters, L10n.t("debrief.rival"), float(before.get("rival_exposure", 0)), GameState.rival_exposure, UITheme.ACCENT)
+	_add_counter(meters, L10n.t("debrief.heat"), float(before.get("heat", 0)), float(GameState.heat), UITheme.WARN)
+	_add_counter(meters, L10n.t("debrief.funds"), float(before.get("funds", 0)), float(GameState.funds), UITheme.TEXT)
 
-	var cont := UITheme.button("CONTINUE", "primary")
+	var cont := UITheme.button(L10n.t("common.continue"), "primary")
 	cont.pressed.connect(func() -> void:
 		visible = false
 		TutorialManager.notify("operation_resolved")
@@ -98,7 +98,7 @@ func _display_lines(lines: Array) -> Array[String]:
 	for i in count:
 		out.append(String(lines[i]))
 	if lines.size() > MAX_LINES:
-		out.append("%d additional changes recorded." % (lines.size() - MAX_LINES))
+		out.append(L10n.t("debrief.more", [lines.size() - MAX_LINES]))
 	return out
 
 

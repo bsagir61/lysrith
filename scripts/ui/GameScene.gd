@@ -53,7 +53,7 @@ func _ready() -> void:
 	_build_directive_card()
 	GameState.resources_changed.connect(_refresh_hud)
 	_refresh_hud()
-	_set_step("Step 1: Select a region", "Tap a region node to open its dossier.")
+	_set_step(L10n.t("game.step_region"), L10n.t("game.step_region_detail"))
 	_show_directive_if_needed()
 	if TutorialManager.should_run() and GameState.turn == 1:
 		TutorialManager.start()
@@ -113,12 +113,12 @@ func _build_hud(parent: Container) -> void:
 	row.add_theme_constant_override("separation", UITheme.SPACE_XS)
 	hud.add_child(row)
 
-	_resource_chip(row, "turn", "TURN", UITheme.ACCENT)
-	_resource_chip(row, "intel", "INTEL", UITheme.TEXT)
-	_resource_chip(row, "funds", "FUNDS", UITheme.TEXT)
-	_resource_chip(row, "trust", "TRUST", UITheme.TEXT)
-	_resource_chip(row, "cover", "COVER", UITheme.TEXT)
-	_resource_chip(row, "heat", "HEAT", UITheme.TEXT)
+	_resource_chip(row, "turn", L10n.t("game.turn"), UITheme.ACCENT)
+	_resource_chip(row, "intel", L10n.t("game.intel"), UITheme.TEXT)
+	_resource_chip(row, "funds", L10n.t("game.funds"), UITheme.TEXT)
+	_resource_chip(row, "trust", L10n.t("game.trust"), UITheme.TEXT)
+	_resource_chip(row, "cover", L10n.t("game.cover"), UITheme.TEXT)
+	_resource_chip(row, "heat", L10n.t("game.heat"), UITheme.TEXT)
 	_heat_label = _hud_labels["heat"]
 
 
@@ -154,8 +154,8 @@ func _build_objective_strip(parent: Container) -> void:
 	_objective_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(_objective_label)
 
-	_rival_bar = _meter_row(vbox, "RIVAL NETWORK", UITheme.ACCENT, "rival_val")
-	_exposure_bar = _meter_row(vbox, "GLOBAL EXPOSURE", UITheme.DANGER, "exposure_val")
+	_rival_bar = _meter_row(vbox, L10n.t("game.rival_meter"), UITheme.ACCENT, "rival_val")
+	_exposure_bar = _meter_row(vbox, L10n.t("game.global_meter"), UITheme.DANGER, "exposure_val")
 
 	var world_row := HBoxContainer.new()
 	world_row.add_theme_constant_override("separation", UITheme.SPACE_S)
@@ -231,15 +231,15 @@ func _build_bottom_bar(parent: Container) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", UITheme.SPACE_S)
 	vbox.add_child(row)
-	var roster := UITheme.button("ROSTER", "ghost", true)
+	var roster := UITheme.button(L10n.t("common.roster"), "ghost", true)
 	roster.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	roster.pressed.connect(func() -> void: _roster_view_mode())
 	row.add_child(roster)
-	var pass_btn := UITheme.button("PASS TURN", "warn", true)
+	var pass_btn := UITheme.button(L10n.t("common.pass_turn"), "warn", true)
 	pass_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pass_btn.pressed.connect(_on_pass_turn)
 	row.add_child(pass_btn)
-	var menu := UITheme.button("MENU", "ghost", true)
+	var menu := UITheme.button(L10n.t("common.menu"), "ghost", true)
 	menu.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	menu.pressed.connect(func() -> void:
 		SaveManager.save_game()
@@ -253,19 +253,19 @@ func _build_panels() -> void:
 	_region_panel.plan_requested.connect(_on_plan_requested)
 	_region_panel.closed.connect(func() -> void:
 		_map.clear_selection()
-		_set_step("Step 1: Select a region", "Tap a region node to open its dossier."))
+		_set_step(L10n.t("game.step_region"), L10n.t("game.step_region_detail")))
 
 	_roster_panel = RosterPanelScene.instantiate()
 	add_child(_roster_panel)
 	_roster_panel.agent_selected.connect(_on_agent_selected)
 	_roster_panel.closed.connect(func() -> void:
-		_set_step("Step 1: Select a region", "Tap a region node to open its dossier."))
+		_set_step(L10n.t("game.step_region"), L10n.t("game.step_region_detail")))
 
 	_op_panel = OperationPanelScene.instantiate()
 	add_child(_op_panel)
 	_op_panel.operation_confirmed.connect(_on_operation_confirmed)
 	_op_panel.closed.connect(func() -> void:
-		_set_step("Step 1: Select a region", "Tap a region node to open its dossier."))
+		_set_step(L10n.t("game.step_region"), L10n.t("game.step_region_detail")))
 
 	_event_modal = EventModalScene.instantiate()
 	add_child(_event_modal)
@@ -291,7 +291,7 @@ func _build_tutorial_banner(parent: Container) -> void:
 	_tutorial_label = UITheme.label("", UITheme.FS_TINY, UITheme.ACCENT)
 	_tutorial_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_tutorial_label)
-	var skip := UITheme.button("SKIP", "ghost", true)
+	var skip := UITheme.button(L10n.t("common.skip"), "ghost", true)
 	skip.custom_minimum_size = Vector2(140, UITheme.TOUCH_MIN)
 	skip.pressed.connect(func() -> void: TutorialManager.skip())
 	row.add_child(skip)
@@ -332,14 +332,11 @@ func _build_directive_card() -> void:
 	var content := VBoxContainer.new()
 	content.add_theme_constant_override("separation", UITheme.SPACE_S)
 	_directive_card.add_child(content)
-	content.add_child(UITheme.title("DIRECTIVE", UITheme.FS_TITLE))
-	var body := UITheme.label(
-		"Expose the Rival Network before Global Exposure reaches 100. Select a region, assign an agent, then run an operation. Build local networks and use Trace Rival Cell to progress toward victory.",
-		UITheme.FS_SMALL,
-		UITheme.TEXT)
+	content.add_child(UITheme.title(L10n.t("game.directive_title"), UITheme.FS_TITLE))
+	var body := UITheme.label(L10n.t("game.directive_body"), UITheme.FS_SMALL, UITheme.TEXT)
 	body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	content.add_child(body)
-	var begin := UITheme.button("BEGIN", "primary")
+	var begin := UITheme.button(L10n.t("common.begin"), "primary")
 	begin.pressed.connect(_dismiss_directive)
 	content.add_child(begin)
 
@@ -361,15 +358,15 @@ func _refresh_hud() -> void:
 	_hud_labels["exposure_val"].text = "%d/100" % int(GameState.global_exposure)
 	_rival_bar.value = GameState.rival_exposure
 	_hud_labels["rival_val"].text = "%d/100" % int(GameState.rival_exposure)
-	_hud_labels["stability"].text = "Stability %d" % int(GameState.world_stability())
-	_hud_labels["momentum"].text = "Momentum %d" % int(GameState.rival_momentum)
-	_objective_label.text = "Goal: expose Rival Network before Global Exposure reaches 100."
-	_danger_label.text = "Danger: Global %d/100 | Trust %d | Lost regions %d/%d" % [
+	_hud_labels["stability"].text = L10n.t("game.stability", [int(GameState.world_stability())])
+	_hud_labels["momentum"].text = L10n.t("game.momentum", [int(GameState.rival_momentum)])
+	_objective_label.text = L10n.t("game.objective")
+	_danger_label.text = L10n.t("game.danger", [
 		int(GameState.global_exposure),
 		GameState.trust,
 		GameState.collapsed_count(),
 		Balance.COLLAPSE_LIMIT,
-	]
+	])
 
 
 func _set_step(title: String, detail: String) -> void:
@@ -419,7 +416,7 @@ func _on_region_tapped(region_id: String) -> void:
 	_map.select_region(region_id)
 	AudioManager.play_click()
 	TutorialManager.notify("region_selected")
-	_set_step("Step 2: Review region", "Choose Agent to assign work here.")
+	_set_step(L10n.t("game.step_review_region"), L10n.t("game.step_review_region_detail"))
 	_region_panel.open(region_id)
 
 
@@ -429,7 +426,7 @@ func _on_plan_requested(region_id: String) -> void:
 		return
 	_pending_region = region_id
 	_region_panel.visible = false
-	_set_step("Step 2: Choose an agent", "Pick the agent whose skills fit the job.")
+	_set_step(L10n.t("game.step_agent"), L10n.t("game.step_agent_detail"))
 	_roster_panel.open(true)
 
 
@@ -441,12 +438,12 @@ func _roster_view_mode() -> void:
 
 func _on_agent_selected(agent_id: String) -> void:
 	_pending_agent = agent_id
-	_set_step("Step 3: Choose an operation", "Check cost, chance, Heat, and expected effect.")
+	_set_step(L10n.t("game.step_operation"), L10n.t("game.step_operation_detail"))
 	_op_panel.open(_pending_region, agent_id)
 
 
 func _on_operation_confirmed(op_id: String) -> void:
-	_set_step("Step 4: Review the result", "Read what changed, then adapt next turn.")
+	_set_step(L10n.t("game.step_result"), L10n.t("game.step_result_detail"))
 	var before := _meter_snapshot()
 	var result: Dictionary = TurnResolver.resolve_operation(_pending_region, _pending_agent, op_id)
 	_map.play_scan(_pending_region)
@@ -469,8 +466,8 @@ func _on_operation_confirmed(op_id: String) -> void:
 	var advance_lines: Array = advance.get("lines", [])
 	lines.append_array(result_lines)
 	lines.append_array(advance_lines)
-	var verdict: String = "SUCCESS" if success else ("NEAR MISS" if near_miss else "FAILURE")
-	var title: String = "%s - %s (%d%% odds, rolled %d)" % [result["op_name"], verdict, result["chance"], result["roll"]]
+	var verdict: String = L10n.t("game.verdict_success") if success else (L10n.t("game.verdict_near_miss") if near_miss else L10n.t("game.verdict_failure"))
+	var title: String = L10n.t("game.result_title", [result["op_name"], verdict, result["chance"], result["roll"]])
 	_debrief_mode = "turn"
 	_debrief.open(title, "success" if success else "fail", lines, before)
 
@@ -478,7 +475,7 @@ func _on_operation_confirmed(op_id: String) -> void:
 func _on_pass_turn() -> void:
 	if _modal_open():
 		return
-	_set_step("Step 4: Review the result", "Agents rest while the rival network moves.")
+	_set_step(L10n.t("game.step_result"), L10n.t("game.step_pass_detail"))
 	var before := _meter_snapshot()
 	var advance: Dictionary = TurnResolver.advance_turn("")
 	_pending_event = advance.get("event", {})
@@ -486,7 +483,7 @@ func _on_pass_turn() -> void:
 	_map.refresh_all()
 	_debrief_mode = "turn"
 	var advance_lines: Array = advance.get("lines", [])
-	_debrief.open("Holding Pattern - agents rest", "neutral", advance_lines, before)
+	_debrief.open(L10n.t("game.pass_debrief_title"), "neutral", advance_lines, before)
 
 
 func _on_debrief_dismissed() -> void:
@@ -494,7 +491,7 @@ func _on_debrief_dismissed() -> void:
 		_handle_end()
 		return
 	if _debrief_mode == "turn" and not _pending_event.is_empty():
-		_set_step("Incoming report", "Choose a response, then review the consequences.")
+		_set_step(L10n.t("game.incoming_report"), L10n.t("game.incoming_report_detail"))
 		_event_modal.open(_pending_event)
 		return
 	_finish_cycle()
@@ -514,16 +511,16 @@ func _on_event_choice(choice_index: int) -> void:
 	var end: Dictionary = GameState.check_end_conditions()
 	_pending_end = end
 	if lines.is_empty():
-		lines.append("No measurable consequences. Yet.")
+		lines.append(L10n.t("game.no_consequence"))
 	_debrief_mode = "event"
-	_set_step("Step 4: Review the result", "Read what changed, then choose the next region.")
+	_set_step(L10n.t("game.step_result"), L10n.t("game.step_result_next_detail"))
 	_debrief.open(String(event["title"]), "neutral", lines, before)
 
 
 func _finish_cycle() -> void:
 	SaveManager.save_game()
 	_refresh_hud()
-	_set_step("Step 1: Select a region", "Tap a region node to begin the next operation.")
+	_set_step(L10n.t("game.step_region"), L10n.t("game.step_next_region_detail"))
 
 
 func _handle_end() -> void:

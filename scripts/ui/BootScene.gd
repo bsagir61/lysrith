@@ -14,7 +14,7 @@ func _ready() -> void:
 	center.add_child(vbox)
 	var t := UITheme.title("LYSRITH", UITheme.FS_HUGE)
 	vbox.add_child(t)
-	var sub := UITheme.label("SILENT CARTOGRAPHY", UITheme.FS_SMALL, UITheme.TEXT_DIM)
+	var sub := UITheme.label(L10n.t("brand.subtitle"), UITheme.FS_SMALL, UITheme.TEXT_DIM)
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(sub)
 	_mark = t

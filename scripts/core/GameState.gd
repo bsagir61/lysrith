@@ -260,15 +260,15 @@ func check_end_conditions() -> Dictionary:
 	var reason := ""
 	if rival_exposure >= Balance.WIN_RIVAL_EXPOSURE:
 		won = true
-		reason = "The rival network has been fully exposed. Its structure is public, its cover gone."
+		reason = L10n.t("end.reason.win")
 	elif global_exposure >= Balance.LOSS_GLOBAL_EXPOSURE:
-		reason = "Global Exposure reached the point of no return. The crisis is now irreversible."
+		reason = L10n.t("end.reason.global")
 	elif trust <= Balance.LOSS_TRUST:
-		reason = "Agency Trust collapsed. The Directorate has been dissolved by emergency decree."
+		reason = L10n.t("end.reason.trust")
 	elif collapsed_count() >= Balance.COLLAPSE_LIMIT:
-		reason = "Five regions have collapsed. The map you were protecting no longer exists."
+		reason = L10n.t("end.reason.collapse")
 	elif funds < 0 and funds_warning:
-		reason = "The Directorate is insolvent. Operations ceased; the rival moves unopposed."
+		reason = L10n.t("end.reason.funds")
 	else:
 		if funds < 0:
 			funds_warning = true

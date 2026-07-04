@@ -32,7 +32,7 @@ func _ready() -> void:
 	vbox.add_theme_constant_override("separation", UITheme.SPACE_S)
 	margin.add_child(vbox)
 
-	_title_label = UITheme.title("AGENT ROSTER", UITheme.FS_LARGE)
+	_title_label = UITheme.title(L10n.t("agent.title"), UITheme.FS_LARGE)
 	vbox.add_child(_title_label)
 	_hint_label = UITheme.label("", UITheme.FS_TINY, UITheme.TEXT_DIM)
 	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -48,7 +48,7 @@ func _ready() -> void:
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_list)
 
-	var back := UITheme.button("BACK", "ghost", true)
+	var back := UITheme.button(L10n.t("common.back"), "ghost", true)
 	back.pressed.connect(func() -> void:
 		visible = false
 		closed.emit())
@@ -57,8 +57,8 @@ func _ready() -> void:
 
 func open(select_mode: bool) -> void:
 	_select_mode = select_mode
-	_title_label.text = "SELECT AGENT" if select_mode else "AGENT ROSTER"
-	_hint_label.text = "Choose one agent for the next operation." if select_mode else "Review fatigue, traits, and skill coverage."
+	_title_label.text = L10n.t("agent.select_title") if select_mode else L10n.t("agent.title")
+	_hint_label.text = L10n.t("agent.select_hint") if select_mode else L10n.t("agent.roster_hint")
 	_rebuild()
 	visible = true
 	TutorialManager.notify("roster_opened")
@@ -90,11 +90,13 @@ func _agent_card(agent: Dictionary) -> Control:
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.add_theme_constant_override("separation", 2)
 	top.add_child(info)
-	info.add_child(UITheme.label("%s / LV %d" % [String(agent["name"]).to_upper(), int(agent["level"])], UITheme.FS_BODY, UITheme.ACCENT))
+	info.add_child(UITheme.label("%s / %s" % [String(agent["name"]).to_upper(), L10n.t("agent.level_short", [int(agent["level"])])], UITheme.FS_BODY, UITheme.ACCENT))
 	info.add_child(UITheme.label(String(agent["role"]), UITheme.FS_SMALL, UITheme.TEXT))
-	info.add_child(UITheme.label("Trait: " + AgentData.trait_name(agent["trait"]) + " - " + AgentData.trait_desc(agent["trait"]), UITheme.FS_TINY, UITheme.TEXT_DIM))
+	var trait_text: String = AgentData.trait_name(agent["trait"]) + " - " + AgentData.trait_desc(agent["trait"])
+	info.add_child(UITheme.label(L10n.t("agent.trait", [trait_text]), UITheme.FS_TINY, UITheme.TEXT_DIM))
 	var status_color: Color = UITheme.SAFE if String(agent["status"]) == "Ready" else UITheme.WARN
-	info.add_child(UITheme.label("Fatigue %d / %s" % [int(agent["fatigue"]), String(agent["status"])], UITheme.FS_TINY, status_color))
+	var status_text: String = L10n.t("agent.ready") if String(agent["status"]) == "Ready" else L10n.t("agent.strained")
+	info.add_child(UITheme.label(L10n.t("agent.fatigue_status", [int(agent["fatigue"]), status_text]), UITheme.FS_TINY, status_color))
 
 	var skills := HBoxContainer.new()
 	skills.add_theme_constant_override("separation", UITheme.SPACE_S)
@@ -115,7 +117,7 @@ func _agent_card(agent: Dictionary) -> Control:
 		skills.add_child(chip)
 
 	if _select_mode:
-		var pick := UITheme.button("SELECT AGENT", "primary", true)
+		var pick := UITheme.button(L10n.t("agent.select"), "primary", true)
 		pick.pressed.connect(func() -> void:
 			visible = false
 			TutorialManager.notify("agent_selected")

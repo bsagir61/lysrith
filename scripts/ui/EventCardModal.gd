@@ -56,13 +56,14 @@ func _rebuild() -> void:
 		child.queue_free()
 
 	var tone: String = String(_event.get("tone", "world"))
+	var tone_key: String = "tone." + tone
 	var tone_color: Color = {
 		"pressure": UITheme.WARN, "internal": UITheme.ACCENT_DIM,
 		"rival": UITheme.DANGER, "world": UITheme.TEXT_DIM,
 		"opportunity": UITheme.SAFE,
 	}.get(tone, UITheme.TEXT_DIM)
 
-	var strip := UITheme.label("INCOMING REPORT / " + tone.to_upper(), UITheme.FS_TINY, tone_color)
+	var strip := UITheme.label(L10n.t("event.strip", [L10n.t(tone_key)]), UITheme.FS_TINY, tone_color)
 	_content.add_child(strip)
 	_content.add_child(UITheme.hseparator())
 

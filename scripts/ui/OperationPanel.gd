@@ -35,7 +35,7 @@ func _ready() -> void:
 	vbox.add_theme_constant_override("separation", UITheme.SPACE_S)
 	margin.add_child(vbox)
 
-	vbox.add_child(UITheme.title("SELECT OPERATION", UITheme.FS_LARGE))
+	vbox.add_child(UITheme.title(L10n.t("operation.title"), UITheme.FS_LARGE))
 	_header = UITheme.label("", UITheme.FS_TINY, UITheme.TEXT_DIM)
 	_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(_header)
@@ -50,12 +50,12 @@ func _ready() -> void:
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_list)
 
-	_confirm_btn = UITheme.button("CHOOSE AN OPERATION", "primary")
+	_confirm_btn = UITheme.button(L10n.t("operation.choose"), "primary")
 	_confirm_btn.disabled = true
 	_confirm_btn.pressed.connect(_on_confirm)
 	vbox.add_child(_confirm_btn)
 
-	var back := UITheme.button("BACK", "ghost", true)
+	var back := UITheme.button(L10n.t("common.back"), "ghost", true)
 	back.pressed.connect(func() -> void:
 		visible = false
 		closed.emit())
@@ -67,7 +67,7 @@ func open(region_id: String, agent_id: String) -> void:
 	_agent_id = agent_id
 	_selected_op = ""
 	_confirm_btn.disabled = true
-	_confirm_btn.text = "CHOOSE AN OPERATION"
+	_confirm_btn.text = L10n.t("operation.choose")
 	var region: Dictionary = GameState.get_region(region_id)
 	var agent: Dictionary = GameState.get_agent(agent_id)
 	_header.text = "%s / %s" % [String(region["name"]).to_upper(), String(agent["name"]).to_upper()]
@@ -111,7 +111,7 @@ func _op_card(region: Dictionary, agent: Dictionary, op: Dictionary) -> Control:
 	var name_lbl: Label = UITheme.label(String(op["name"]).to_upper(), UITheme.FS_BODY, UITheme.ACCENT if affordable else UITheme.TEXT_DIM)
 	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(name_lbl)
-	var chance_lbl := UITheme.label("Chance %d%%" % chance, UITheme.FS_TINY, UITheme.level_color(float(chance)))
+	var chance_lbl := UITheme.label(L10n.t("operation.chance", [chance]), UITheme.FS_TINY, UITheme.level_color(float(chance)))
 	chance_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	top.add_child(chance_lbl)
 
@@ -119,19 +119,19 @@ func _op_card(region: Dictionary, agent: Dictionary, op: Dictionary) -> Control:
 
 	var cost_parts: Array[String] = []
 	if int(costs["funds"]) > 0:
-		cost_parts.append("%d Funds" % int(costs["funds"]))
+		cost_parts.append("%d %s" % [int(costs["funds"]), L10n.t("game.funds")])
 	if int(costs["intel"]) > 0:
-		cost_parts.append("%d Intel" % int(costs["intel"]))
+		cost_parts.append("%d %s" % [int(costs["intel"]), L10n.t("game.intel")])
 	if int(costs["trust"]) > 0:
-		cost_parts.append("%d Trust" % int(costs["trust"]))
-	var cost_text: String = ", ".join(cost_parts) if not cost_parts.is_empty() else "None"
-	var heat_text: String = "+%d" % heat if heat > 0 else "None"
+		cost_parts.append("%d %s" % [int(costs["trust"]), L10n.t("game.trust")])
+	var cost_text: String = ", ".join(cost_parts) if not cost_parts.is_empty() else L10n.t("common.none")
+	var heat_text: String = "+%d" % heat if heat > 0 else L10n.t("common.none")
 	var detail_color: Color = UITheme.TEXT if affordable else UITheme.DANGER
-	vbox.add_child(_detail_row("Cost", cost_text, detail_color))
-	vbox.add_child(_detail_row("Heat", heat_text, UITheme.danger_color(float(heat))))
-	vbox.add_child(_detail_row("Effect", String(op.get("effect_hint", "")), detail_color))
+	vbox.add_child(_detail_row(L10n.t("operation.cost"), cost_text, detail_color))
+	vbox.add_child(_detail_row(L10n.t("operation.heat"), heat_text, UITheme.danger_color(float(heat))))
+	vbox.add_child(_detail_row(L10n.t("operation.effect"), String(op.get("effect_hint", "")), detail_color))
 	if not affordable:
-		vbox.add_child(UITheme.label("Insufficient resources.", UITheme.FS_TINY, UITheme.DANGER))
+		vbox.add_child(UITheme.label(L10n.t("operation.insufficient"), UITheme.FS_TINY, UITheme.DANGER))
 	return panel
 
 
@@ -155,7 +155,7 @@ func _select_op(op_id: String) -> void:
 		var style := UITheme.card_style(UITheme.ACCENT if id == op_id else UITheme.EDGE)
 		card.add_theme_stylebox_override("panel", style)
 	_confirm_btn.disabled = false
-	_confirm_btn.text = "RUN OPERATION"
+	_confirm_btn.text = L10n.t("operation.run")
 	if op_id == "map_signals":
 		TutorialManager.notify("map_signals_selected")
 

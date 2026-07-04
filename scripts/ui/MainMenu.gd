@@ -17,17 +17,17 @@ func _ready() -> void:
 
 	var title := UITheme.title("LYSRITH", UITheme.FS_HUGE)
 	vbox.add_child(title)
-	var sub := UITheme.label("SILENT CARTOGRAPHY", UITheme.FS_SMALL, UITheme.TEXT_DIM)
+	var sub := UITheme.label(L10n.t("brand.subtitle"), UITheme.FS_SMALL, UITheme.TEXT_DIM)
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(sub)
 	vbox.add_child(UITheme.spacer(UITheme.SPACE_XL))
 
-	var new_btn := UITheme.button("NEW GAME", "primary")
+	var new_btn := UITheme.button(L10n.t("menu.new_game"), "primary")
 	new_btn.pressed.connect(func() -> void:
 		UITransitions.change_scene("res://scenes/menus/NewGameSetup.tscn"))
 	vbox.add_child(new_btn)
 
-	var continue_btn := UITheme.button("CONTINUE", "ghost")
+	var continue_btn := UITheme.button(L10n.t("menu.continue"), "ghost")
 	if SaveManager.has_save():
 		continue_btn.pressed.connect(_on_continue)
 	else:
@@ -35,29 +35,24 @@ func _ready() -> void:
 		continue_btn.modulate.a = 0.55
 	vbox.add_child(continue_btn)
 
-	var how_btn := UITheme.button("HOW TO PLAY", "ghost")
+	var how_btn := UITheme.button(L10n.t("menu.how_to_play"), "ghost")
 	how_btn.pressed.connect(func() -> void:
 		UITransitions.change_scene("res://scenes/menus/HowToPlayScreen.tscn"))
 	vbox.add_child(how_btn)
 
-	var settings_btn := UITheme.button("SETTINGS", "ghost")
+	var settings_btn := UITheme.button(L10n.t("menu.settings"), "ghost")
 	settings_btn.pressed.connect(func() -> void:
 		UITransitions.change_scene("res://scenes/menus/SettingsScreen.tscn"))
 	vbox.add_child(settings_btn)
 
-	var credits_btn := UITheme.button("CREDITS", "ghost")
-	credits_btn.pressed.connect(func() -> void:
-		UITransitions.change_scene("res://scenes/menus/CreditsScreen.tscn"))
-	vbox.add_child(credits_btn)
-
 	# Exit only where the platform expects it.
 	if not OS.has_feature("web") and not OS.has_feature("ios"):
-		var exit_btn := UITheme.button("EXIT", "ghost", true)
+		var exit_btn := UITheme.button(L10n.t("menu.exit"), "ghost", true)
 		exit_btn.pressed.connect(func() -> void: get_tree().quit())
 		vbox.add_child(exit_btn)
 
 	vbox.add_child(UITheme.spacer(UITheme.SPACE_L))
-	var footer := UITheme.label("A fictional intelligence simulation. v1.0", 20, UITheme.TEXT_DIM)
+	var footer := UITheme.label(L10n.t("menu.footer"), UITheme.FS_MICRO, UITheme.TEXT_DIM)
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(footer)
 

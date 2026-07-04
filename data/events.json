@@ -1,0 +1,342 @@
+{
+  "events": [
+    {
+      "id": "leaked_briefing", "title": "Leaked Briefing", "tone": "pressure",
+      "desc": "A summary of Directorate activity surfaces in an open forum. It is vague, but it is ours.",
+      "trigger": { "type": "heat_min", "value": 25 },
+      "choices": [
+        { "text": "Deny everything, publicly.", "effects": { "heat": -8, "trust": -6 }, "note": "-8 Heat, -6 Trust" },
+        { "text": "Say nothing. Let it fade.", "effects": { "global_exposure": 5 }, "note": "+5 Global Exposure" },
+        { "text": "Spend Intel to trace the leak.", "effects": { "intel": -8, "heat": -12 }, "note": "-8 Intel, -12 Heat" }
+      ]
+    },
+    {
+      "id": "unstable_contact", "title": "Unstable Contact", "tone": "internal",
+      "desc": "A local source demands double payment and hints they have other buyers.",
+      "trigger": { "type": "turn_min", "value": 3 },
+      "choices": [
+        { "text": "Pay them off.", "effects": { "funds": -15 }, "note": "-15 Funds" },
+        { "text": "Cut them loose.", "effects": { "region_rival": 8, "heat": 4 }, "note": "+Rival Influence in one region, +4 Heat" }
+      ]
+    },
+    {
+      "id": "false_pattern", "title": "False Pattern", "tone": "rival",
+      "desc": "Analysis flags a promising signal cluster. Something about it feels planted.",
+      "trigger": { "type": "intel_min", "value": 10 },
+      "choices": [
+        { "text": "Chase it anyway.", "effects": { "intel": -6, "rival_exposure": 4 }, "note": "-6 Intel, +4 Rival Exposure" },
+        { "text": "Discard the cluster.", "effects": { "rival_momentum": 3 }, "note": "+3 Rival Momentum" },
+        { "text": "Feed it false interest.", "effects": { "heat": 6, "rival_momentum": -4 }, "note": "+6 Heat, -4 Rival Momentum" }
+      ]
+    },
+    {
+      "id": "budget_hearing", "title": "Budget Hearing", "tone": "internal",
+      "desc": "The oversight committee wants numbers. The numbers are defensible, barely.",
+      "trigger": { "type": "turn_min", "value": 4 },
+      "choices": [
+        { "text": "Full transparency.", "effects": { "trust": 8, "funds": -10 }, "note": "+8 Trust, -10 Funds" },
+        { "text": "Creative accounting.", "effects": { "funds": 15, "trust": -8 }, "note": "+15 Funds, -8 Trust" }
+      ]
+    },
+    {
+      "id": "regional_panic", "title": "Regional Panic", "tone": "world",
+      "desc": "Rumors of an unseen crisis spread through a fragile region. Markets flinch.",
+      "trigger": { "type": "stability_low", "value": 45 },
+      "choices": [
+        { "text": "Issue calming statements.", "effects": { "region_stability": 8, "heat": 5 }, "note": "+Stability in one region, +5 Heat" },
+        { "text": "Stay out of it.", "effects": { "region_stability": -8 }, "note": "-Stability in one region" }
+      ]
+    },
+    {
+      "id": "rival_broadcast", "title": "Rival Broadcast", "tone": "rival",
+      "desc": "An anonymous transmission mocks the Directorate by name. It is designed to provoke.",
+      "trigger": { "type": "rival_exposure_min", "value": 20 },
+      "choices": [
+        { "text": "Trace the transmission.", "effects": { "intel": -5, "rival_exposure": 6, "heat": 4 }, "note": "-5 Intel, +6 Rival Exposure, +4 Heat" },
+        { "text": "Ignore the bait.", "effects": { "trust": -4 }, "note": "-4 Trust" }
+      ]
+    },
+    {
+      "id": "quiet_breakthrough", "title": "Quiet Breakthrough", "tone": "opportunity",
+      "desc": "A junior analyst finds an overlap between two dead files. It might be nothing.",
+      "trigger": { "type": "always" },
+      "choices": [
+        { "text": "Fund a follow-up.", "effects": { "funds": -10, "intel": 12 }, "note": "-10 Funds, +12 Intel" },
+        { "text": "Archive it for later.", "effects": { "intel": 3 }, "note": "+3 Intel" }
+      ]
+    },
+    {
+      "id": "double_signal", "title": "Double Signal", "tone": "rival",
+      "desc": "Two identical signatures appear in distant regions at the same hour. One is a decoy.",
+      "trigger": { "type": "turn_min", "value": 5 },
+      "choices": [
+        { "text": "Split resources, cover both.", "effects": { "funds": -12, "rival_exposure": 5 }, "note": "-12 Funds, +5 Rival Exposure" },
+        { "text": "Commit to one.", "effects": { "rival_exposure": 8, "region_rival": 6 }, "note": "+8 Rival Exposure, +Rival Influence in one region" },
+        { "text": "Watch and wait.", "effects": { "rival_momentum": 3 }, "note": "+3 Rival Momentum" }
+      ]
+    },
+    {
+      "id": "public_scrutiny", "title": "Public Scrutiny", "tone": "pressure",
+      "desc": "An investigative outlet starts asking careful questions about budget lines.",
+      "trigger": { "type": "heat_min", "value": 35 },
+      "choices": [
+        { "text": "Cooperate within limits.", "effects": { "trust": 5, "heat": 5 }, "note": "+5 Trust, +5 Heat" },
+        { "text": "Stonewall.", "effects": { "heat": -5, "trust": -7 }, "note": "-5 Heat, -7 Trust" }
+      ]
+    },
+    {
+      "id": "asset_burnout", "title": "Asset Burnout", "tone": "internal",
+      "desc": "One of your people has been running on fumes for weeks. It shows.",
+      "trigger": { "type": "turn_min", "value": 6 },
+      "choices": [
+        { "text": "Force a rest cycle.", "effects": { "agent_rest": 30 }, "note": "One agent recovers fatigue" },
+        { "text": "Push through.", "effects": { "agent_fatigue": 20, "intel": 5 }, "note": "+Fatigue on one agent, +5 Intel" }
+      ]
+    },
+    {
+      "id": "map_discrepancy", "title": "Map Discrepancy", "tone": "opportunity",
+      "desc": "Field reports and satellite composites disagree about one region's quiet zones.",
+      "trigger": { "type": "always" },
+      "choices": [
+        { "text": "Send a verification sweep.", "effects": { "funds": -8, "reveal_tag": 1 }, "note": "-8 Funds, reveal one hidden tag" },
+        { "text": "Trust the field reports.", "effects": { "intel": 2 }, "note": "+2 Intel" }
+      ]
+    },
+    {
+      "id": "committee_pressure", "title": "Committee Pressure", "tone": "internal",
+      "desc": "The committee wants visible results this quarter, not careful groundwork.",
+      "trigger": { "type": "trust_max", "value": 55 },
+      "choices": [
+        { "text": "Promise fast results.", "effects": { "trust": 8, "heat": 8 }, "note": "+8 Trust, +8 Heat" },
+        { "text": "Defend the slow approach.", "effects": { "trust": -5, "cover": 8 }, "note": "-5 Trust, +8 Cover" }
+      ]
+    },
+    {
+      "id": "silent_defection", "title": "Silent Defection", "tone": "rival",
+      "desc": "A mid-level rival courier stops appearing in intercepts. They may want out.",
+      "trigger": { "type": "rival_exposure_min", "value": 30 },
+      "choices": [
+        { "text": "Offer safe passage.", "effects": { "funds": -15, "rival_exposure": 10 }, "note": "-15 Funds, +10 Rival Exposure" },
+        { "text": "Too risky. Observe only.", "effects": { "intel": 6 }, "note": "+6 Intel" },
+        { "text": "Leak their name to the rival.", "effects": { "rival_momentum": -6, "trust": -6 }, "note": "-6 Rival Momentum, -6 Trust" }
+      ]
+    },
+    {
+      "id": "dead_channel", "title": "Dead Channel", "tone": "rival",
+      "desc": "A reliable listening channel goes silent overnight. No interference, no static. Nothing.",
+      "trigger": { "type": "turn_min", "value": 7 },
+      "choices": [
+        { "text": "Rebuild it quietly.", "effects": { "funds": -10, "heat": 3 }, "note": "-10 Funds, +3 Heat" },
+        { "text": "Assume it is burned.", "effects": { "intel": -5, "cover": 5 }, "note": "-5 Intel, +5 Cover" }
+      ]
+    },
+    {
+      "id": "fractured_report", "title": "Fractured Report", "tone": "internal",
+      "desc": "Two trusted analysts submit contradictory assessments of the same region.",
+      "trigger": { "type": "always" },
+      "choices": [
+        { "text": "Commission a third review.", "effects": { "funds": -6, "intel": 8 }, "note": "-6 Funds, +8 Intel" },
+        { "text": "Average the findings.", "effects": { "region_stability": -5 }, "note": "-Stability in one region" }
+      ]
+    },
+    {
+      "id": "emergency_session", "title": "Emergency Session", "tone": "pressure",
+      "desc": "The committee convenes at night. Global indicators have crossed a quiet threshold.",
+      "trigger": { "type": "exposure_min", "value": 55 },
+      "choices": [
+        { "text": "Request emergency powers.", "effects": { "funds": 20, "trust": -10 }, "note": "+20 Funds, -10 Trust" },
+        { "text": "Present a de-escalation plan.", "effects": { "global_exposure": -6, "funds": -12 }, "note": "-6 Global Exposure, -12 Funds" }
+      ]
+    },
+    {
+      "id": "shadow_ledger", "title": "Shadow Ledger", "tone": "opportunity",
+      "desc": "A recovered ledger maps part of the rival's funding chain, in a cipher you half-know.",
+      "trigger": { "type": "rival_exposure_min", "value": 15 },
+      "choices": [
+        { "text": "Full decryption effort.", "effects": { "intel": -10, "rival_exposure": 9 }, "note": "-10 Intel, +9 Rival Exposure" },
+        { "text": "Sell fragments to allies.", "effects": { "funds": 18, "rival_momentum": 4 }, "note": "+18 Funds, +4 Rival Momentum" }
+      ]
+    },
+    {
+      "id": "data_fog", "title": "Data Fog", "tone": "world",
+      "desc": "Signal quality degrades across several corridors. Every feed is suddenly less certain.",
+      "trigger": { "type": "turn_min", "value": 4 },
+      "choices": [
+        { "text": "Pay for clean relays.", "effects": { "funds": -12 }, "note": "-12 Funds" },
+        { "text": "Work with degraded data.", "effects": { "intel": -6 }, "note": "-6 Intel" }
+      ]
+    },
+    {
+      "id": "rumor_storm", "title": "Local Rumor Storm", "tone": "world",
+      "desc": "A fabricated story about foreign observers spreads through one region's districts.",
+      "trigger": { "type": "always" },
+      "choices": [
+        { "text": "Counter with facts.", "effects": { "funds": -8, "region_pressure": -10 }, "note": "-8 Funds, -Public Pressure in one region" },
+        { "text": "Let it burn out.", "effects": { "region_pressure": 8, "region_stability": -4 }, "note": "+Pressure, -Stability in one region" }
+      ]
+    },
+    {
+      "id": "signal_contamination", "title": "Signal Contamination", "tone": "rival",
+      "desc": "Your intercept archive shows signs of deliberate poisoning. Weeks of data are suspect.",
+      "trigger": { "type": "heat_min", "value": 45 },
+      "choices": [
+        { "text": "Purge the archive.", "effects": { "intel": -10, "cover": 6 }, "note": "-10 Intel, +6 Cover" },
+        { "text": "Flag and keep everything.", "effects": { "rival_momentum": 5 }, "note": "+5 Rival Momentum" }
+      ]
+    },
+    {
+      "id": "friendly_audit", "title": "Courtesy Review", "tone": "internal",
+      "desc": "An allied bureau offers to review your exposure posture. Their help never comes free.",
+      "trigger": { "type": "exposure_min", "value": 35 },
+      "choices": [
+        { "text": "Accept the review.", "effects": { "global_exposure": -8, "intel": -6 }, "note": "-8 Global Exposure, -6 Intel" },
+        { "text": "Decline politely.", "effects": { "cover": 4 }, "note": "+4 Cover" }
+      ]
+    },
+    {
+      "id": "cold_pitch", "title": "Cold Pitch", "tone": "opportunity",
+      "desc": "A stranger leaves a one-line message at a dead drop: 'I can name three of them.'",
+      "trigger": { "type": "turn_min", "value": 8 },
+      "choices": [
+        { "text": "Take the meeting.", "effects": { "rival_exposure": 8, "heat": 8 }, "note": "+8 Rival Exposure, +8 Heat" },
+        { "text": "Test them first.", "effects": { "intel": -5, "rival_exposure": 4 }, "note": "-5 Intel, +4 Rival Exposure" },
+        { "text": "Burn the drop.", "effects": { "cover": 5 }, "note": "+5 Cover" }
+      ]
+    },
+    {
+      "id": "budget_freeze", "title": "Budget Freeze", "tone": "pressure",
+      "desc": "Payments across the bureau are suspended pending review of an unrelated scandal.",
+      "trigger": { "type": "funds_max", "value": 40 },
+      "choices": [
+        { "text": "Call in old favors.", "effects": { "funds": 15, "trust": -5 }, "note": "+15 Funds, -5 Trust" },
+        { "text": "Absorb the freeze.", "effects": { "agent_fatigue": 10 }, "note": "+Fatigue on one agent" }
+      ]
+    },
+    {
+      "id": "overheard_name", "title": "Overheard Name", "tone": "rival",
+      "desc": "One of your cover identities is spoken aloud in an intercepted call.",
+      "trigger": { "type": "heat_min", "value": 50 },
+      "choices": [
+        { "text": "Retire the identity.", "effects": { "cover": -8, "heat": -10 }, "note": "-8 Cover, -10 Heat" },
+        { "text": "Keep it active as bait.", "effects": { "rival_exposure": 6, "global_exposure": 6 }, "note": "+6 Rival Exposure, +6 Global Exposure" }
+      ]
+    },
+    {
+      "id": "stability_grant", "title": "Stability Grant", "tone": "opportunity",
+      "desc": "A neutral development fund offers matching support for regional stabilization.",
+      "trigger": { "type": "stability_low", "value": 50 },
+      "choices": [
+        { "text": "Match the grant.", "effects": { "funds": -15, "all_stability": 4 }, "note": "-15 Funds, +4 Stability everywhere" },
+        { "text": "Decline the entanglement.", "effects": {}, "note": "No effect" }
+      ]
+    },
+    {
+      "id": "misfiled_dossier", "title": "Misfiled Dossier", "tone": "internal",
+      "desc": "A sensitive dossier spent six days in the wrong archive. Someone may have read it.",
+      "trigger": { "type": "always" },
+      "choices": [
+        { "text": "Internal investigation.", "effects": { "funds": -8, "trust": 4 }, "note": "-8 Funds, +4 Trust" },
+        { "text": "Reclassify and move on.", "effects": { "heat": 5 }, "note": "+5 Heat" }
+      ]
+    },
+    {
+      "id": "rival_recruiter", "title": "Rival Recruiter", "tone": "rival",
+      "desc": "The rival network is quietly hiring in a region where you have contacts.",
+      "trigger": { "type": "momentum_min", "value": 30 },
+      "choices": [
+        { "text": "Outbid them.", "effects": { "funds": -14, "region_rival": -10 }, "note": "-14 Funds, -Rival Influence in one region" },
+        { "text": "Plant one of yours in the queue.", "effects": { "heat": 6, "rival_exposure": 7 }, "note": "+6 Heat, +7 Rival Exposure" }
+      ]
+    },
+    {
+      "id": "quiet_quarter", "title": "Quiet Quarter", "tone": "world",
+      "desc": "For once, nothing is on fire. The silence is almost suspicious.",
+      "trigger": { "type": "heat_max", "value": 20 },
+      "choices": [
+        { "text": "Rest the roster.", "effects": { "all_agent_rest": 15 }, "note": "All agents recover fatigue" },
+        { "text": "Press the advantage.", "effects": { "intel": 6, "heat": 4 }, "note": "+6 Intel, +4 Heat" }
+      ]
+    },
+    {
+      "id": "border_incident", "title": "Border Incident", "tone": "world",
+      "desc": "A minor clash at a regional checkpoint threatens to draw larger attention.",
+      "trigger": { "type": "turn_min", "value": 5 },
+      "choices": [
+        { "text": "Mediate through channels.", "effects": { "funds": -10, "region_stability": 8 }, "note": "-10 Funds, +Stability in one region" },
+        { "text": "Document, do not intervene.", "effects": { "intel": 5, "region_stability": -6 }, "note": "+5 Intel, -Stability in one region" }
+      ]
+    },
+    {
+      "id": "encrypted_gift", "title": "Encrypted Gift", "tone": "opportunity",
+      "desc": "An anonymous parcel contains a storage device. It is either treasure or a trap.",
+      "trigger": { "type": "turn_min", "value": 6 },
+      "choices": [
+        { "text": "Open it in isolation.", "effects": { "intel": 10, "heat": 5 }, "note": "+10 Intel, +5 Heat" },
+        { "text": "Destroy it unopened.", "effects": { "cover": 4 }, "note": "+4 Cover" }
+      ]
+    },
+    {
+      "id": "collapsed_echo", "title": "Echoes of Collapse", "tone": "world",
+      "desc": "A collapsed region's disorder is spilling into its neighbors' markets and streets.",
+      "trigger": { "type": "collapsed_min", "value": 1 },
+      "choices": [
+        { "text": "Fund containment corridors.", "effects": { "funds": -18, "all_stability": 3 }, "note": "-18 Funds, +3 Stability everywhere" },
+        { "text": "Accept the drift.", "effects": { "all_stability": -3 }, "note": "-3 Stability everywhere" }
+      ]
+    },
+    {
+      "id": "old_alliance_call", "title": "An Old Understanding", "tone": "opportunity",
+      "desc": "A retired counterpart from a friendlier era offers a private word of guidance.",
+      "trigger": { "type": "trust_max", "value": 45 },
+      "choices": [
+        { "text": "Meet them.", "effects": { "trust": 10, "heat": 3 }, "note": "+10 Trust, +3 Heat" },
+        { "text": "Some doors stay closed.", "effects": {}, "note": "No effect" }
+      ]
+    },
+    {
+      "id": "pattern_bleed", "title": "Pattern Bleed", "tone": "rival",
+      "desc": "Your own operational rhythm is becoming predictable. Someone is charting you.",
+      "trigger": { "type": "turn_min", "value": 9 },
+      "choices": [
+        { "text": "Randomize schedules.", "effects": { "agent_fatigue": 12, "cover": 8 }, "note": "+Fatigue on one agent, +8 Cover" },
+        { "text": "Maintain tempo.", "effects": { "rival_momentum": 4 }, "note": "+4 Rival Momentum" }
+      ]
+    },
+    {
+      "id": "press_leak_race", "title": "Race to Print", "tone": "pressure",
+      "desc": "A journalist calls for comment on a story that is eighty percent correct.",
+      "trigger": { "type": "exposure_min", "value": 45 },
+      "choices": [
+        { "text": "Trade access for delay.", "effects": { "intel": -6, "global_exposure": -5 }, "note": "-6 Intel, -5 Global Exposure" },
+        { "text": "No comment.", "effects": { "global_exposure": 7 }, "note": "+7 Global Exposure" }
+      ]
+    },
+    {
+      "id": "internal_doubt", "title": "Internal Doubt", "tone": "internal",
+      "desc": "Senior staff quietly question whether the rival network even exists at this scale.",
+      "trigger": { "type": "rival_exposure_max", "value": 25 },
+      "choices": [
+        { "text": "Share raw evidence.", "effects": { "intel": -5, "trust": 8 }, "note": "-5 Intel, +8 Trust" },
+        { "text": "Demand discipline.", "effects": { "trust": -4, "agent_fatigue": 8 }, "note": "-4 Trust, +Fatigue on one agent" }
+      ]
+    },
+    {
+      "id": "gray_donor", "title": "The Gray Donor", "tone": "opportunity",
+      "desc": "A private benefactor offers substantial funding with politely unstated expectations.",
+      "trigger": { "type": "funds_max", "value": 30 },
+      "choices": [
+        { "text": "Accept the funds.", "effects": { "funds": 30, "heat": 8, "trust": -5 }, "note": "+30 Funds, +8 Heat, -5 Trust" },
+        { "text": "Refuse.", "effects": { "trust": 5 }, "note": "+5 Trust" }
+      ]
+    },
+    {
+      "id": "night_signal", "title": "Night Signal", "tone": "rival",
+      "desc": "A single strong burst transmission originates from a region you thought was quiet.",
+      "trigger": { "type": "always" },
+      "choices": [
+        { "text": "Triangulate immediately.", "effects": { "funds": -8, "region_rival_reveal": 1 }, "note": "-8 Funds, reveal rival presence in one region" },
+        { "text": "Log it and wait.", "effects": { "region_rival": 5 }, "note": "+Rival Influence in one region" }
+      ]
+    }
+  ]
+}

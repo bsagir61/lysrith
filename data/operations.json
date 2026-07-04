@@ -1,0 +1,104 @@
+{
+  "operations": [
+    {
+      "id": "map_signals",
+      "name": "Map Signals",
+      "desc": "Sweep the region's open channels. Raises Intel Level and grants Intel.",
+      "skill": "analysis",
+      "base_chance": 72,
+      "cost_funds": 5, "cost_intel": 0,
+      "heat": 2, "fatigue": 10,
+      "covert": false,
+      "effect_hint": "+1 Intel Level, +Intel"
+    },
+    {
+      "id": "build_network",
+      "name": "Build Local Network",
+      "desc": "Recruit quiet local contacts. Improves Local Network for future work here.",
+      "skill": "fieldcraft",
+      "base_chance": 62,
+      "cost_funds": 20, "cost_intel": 0,
+      "heat": 4, "fatigue": 14,
+      "covert": true,
+      "effect_hint": "+Local Network"
+    },
+    {
+      "id": "counter_influence",
+      "name": "Counter Influence",
+      "desc": "Disrupt the rival network's foothold. Reduces Rival Influence, draws attention.",
+      "skill": "fieldcraft",
+      "base_chance": 52,
+      "cost_funds": 15, "cost_intel": 0,
+      "heat": 8, "fatigue": 15,
+      "covert": true,
+      "effect_hint": "-Rival Influence"
+    },
+    {
+      "id": "stabilize",
+      "name": "Stabilize Region",
+      "desc": "Coordinate with local institutions. Raises Stability, lowers Public Pressure.",
+      "skill": "diplomacy",
+      "base_chance": 62,
+      "cost_funds": 25, "cost_intel": 0,
+      "heat": 3, "fatigue": 12,
+      "covert": false,
+      "effect_hint": "+Stability, -Public Pressure"
+    },
+    {
+      "id": "reduce_heat",
+      "name": "Reduce Heat",
+      "desc": "Scrub trails and cool the Directorate's profile. Lowers global Heat.",
+      "skill": "technical",
+      "base_chance": 66,
+      "cost_funds": 10, "cost_intel": 3,
+      "heat": 0, "fatigue": 10,
+      "covert": false,
+      "effect_hint": "-Heat, +Cover"
+    },
+    {
+      "id": "trace_cell",
+      "name": "Trace Rival Cell",
+      "desc": "Follow the rival's threads to their source. The main path to victory.",
+      "skill": "technical",
+      "base_chance": 46,
+      "cost_funds": 20, "cost_intel": 5,
+      "heat": 10, "fatigue": 18,
+      "covert": true,
+      "effect_hint": "+Rival Network Exposure"
+    },
+    {
+      "id": "containment",
+      "name": "Emergency Containment",
+      "desc": "Commit everything to hold a failing region. Expensive, but it works fast.",
+      "skill": "resolve",
+      "base_chance": 58,
+      "cost_funds": 40, "cost_intel": 0,
+      "heat": 6, "fatigue": 16,
+      "covert": false,
+      "extra_cost_trust": 4,
+      "effect_hint": "++Stability, -Rival Influence"
+    },
+    {
+      "id": "deep_analysis",
+      "name": "Deep Analysis",
+      "desc": "Cross-reference every file on this region. Reveals the hidden tag and sharpens odds.",
+      "skill": "analysis",
+      "base_chance": 68,
+      "cost_funds": 5, "cost_intel": 8,
+      "heat": 1, "fatigue": 10,
+      "covert": false,
+      "effect_hint": "Reveal hidden tag, Intel Level to max"
+    },
+    {
+      "id": "quiet_audit",
+      "name": "Quiet Audit",
+      "desc": "Put the books in order before someone asks. Restores Trust, calms pressure.",
+      "skill": "diplomacy",
+      "base_chance": 72,
+      "cost_funds": 10, "cost_intel": 0,
+      "heat": 0, "fatigue": 8,
+      "covert": false,
+      "effect_hint": "+Trust, -Public Pressure"
+    }
+  ]
+}

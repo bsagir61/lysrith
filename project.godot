@@ -1,0 +1,55 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
+[application]
+
+config/name="LYSRITH"
+config/description="LYSRITH: Silent Cartography - a fictional abstract espionage strategy game."
+run/main_scene="res://scenes/boot/BootScene.tscn"
+config/features=PackedStringArray("4.6")
+config/icon="res://art/icon.svg"
+
+[autoload]
+
+UITheme="*res://scripts/ui/UITheme.gd"
+Balance="*res://scripts/core/Balance.gd"
+RandomService="*res://scripts/core/RandomService.gd"
+RegionData="*res://scripts/data/RegionData.gd"
+AgentData="*res://scripts/data/AgentData.gd"
+OperationData="*res://scripts/data/OperationData.gd"
+EventData="*res://scripts/data/EventData.gd"
+SettingsManager="*res://scripts/managers/SettingsManager.gd"
+GameState="*res://scripts/core/GameState.gd"
+TurnResolver="*res://scripts/core/TurnResolver.gd"
+SaveManager="*res://scripts/core/SaveManager.gd"
+AudioManager="*res://scripts/managers/AudioManager.gd"
+TutorialManager="*res://scripts/managers/TutorialManager.gd"
+UITransitions="*res://scripts/ui/UITransitions.gd"
+
+[display]
+
+window/size/viewport_width=1080
+window/size/viewport_height=1920
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+
+renderer/rendering_method="mobile"
+environment/defaults/default_clear_color=Color(0.02, 0.04, 0.08, 1)

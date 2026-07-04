@@ -1,0 +1,60 @@
+{
+  "agents": [
+    {
+      "id": "sela",
+      "name": "Sela Marn",
+      "role": "Analyst",
+      "analysis": 8, "fieldcraft": 3, "diplomacy": 4, "technical": 6, "resolve": 5,
+      "trait": "fast_analyst",
+      "bio": "Reads pattern noise the way others read headlines. Rarely leaves the map room."
+    },
+    {
+      "id": "doran",
+      "name": "Doran Veyl",
+      "role": "Field Observer",
+      "analysis": 4, "fieldcraft": 8, "diplomacy": 3, "technical": 5, "resolve": 6,
+      "trait": "low_profile",
+      "bio": "Moves through crowded corridors without leaving a trace on anyone's memory."
+    },
+    {
+      "id": "iren",
+      "name": "Iren Kessa",
+      "role": "Liaison",
+      "analysis": 5, "fieldcraft": 4, "diplomacy": 8, "technical": 3, "resolve": 6,
+      "trait": "risk_averse",
+      "bio": "Keeps every channel open and every promise vague. Never gambles with trust."
+    },
+    {
+      "id": "maro",
+      "name": "Maro Denn",
+      "role": "Signal Specialist",
+      "analysis": 6, "fieldcraft": 3, "diplomacy": 2, "technical": 9, "resolve": 5,
+      "trait": "expensive_specialist",
+      "bio": "The best listener the Directorate can afford. Barely."
+    },
+    {
+      "id": "vessa",
+      "name": "Vessa Corin",
+      "role": "Crisis Negotiator",
+      "analysis": 5, "fieldcraft": 4, "diplomacy": 7, "technical": 3, "resolve": 8,
+      "trait": "calm_under_pressure",
+      "bio": "Has walked out of three collapsing rooms with the paperwork intact."
+    },
+    {
+      "id": "aster",
+      "name": "Aster Nyle",
+      "role": "Network Handler",
+      "analysis": 4, "fieldcraft": 7, "diplomacy": 5, "technical": 6, "resolve": 4,
+      "trait": "unstable_contact",
+      "bio": "Knows everyone worth knowing. Half of them want something in return."
+    }
+  ],
+  "traits": {
+    "fast_analyst": { "name": "Fast Analyst", "desc": "Intel gains increased." },
+    "low_profile": { "name": "Low Profile", "desc": "Generates less Heat." },
+    "risk_averse": { "name": "Risk Averse", "desc": "Safer odds, weaker high-reward outcomes." },
+    "expensive_specialist": { "name": "Expensive Specialist", "desc": "Better odds, higher Funds cost." },
+    "calm_under_pressure": { "name": "Calm Under Pressure", "desc": "Failure penalties reduced." },
+    "unstable_contact": { "name": "Unstable Contact", "desc": "Stronger effects, more event risk." }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "regions": [
+    { "id": "kareth", "name": "Kareth Basin", "pos": [175, 480] },
+    { "id": "vorn", "name": "Vorn Coast", "pos": [430, 415] },
+    { "id": "halden", "name": "Halden Grid", "pos": [700, 450] },
+    { "id": "oris", "name": "Oris Gate", "pos": [920, 540] },
+    { "id": "namar", "name": "Namar Verge", "pos": [155, 715] },
+    { "id": "ceyr", "name": "Ceyr Line", "pos": [405, 665] },
+    { "id": "talric", "name": "Talric Ward", "pos": [665, 705] },
+    { "id": "estra", "name": "Estra Vale", "pos": [900, 780] },
+    { "id": "rovan", "name": "Rovan Span", "pos": [205, 950] },
+    { "id": "silen", "name": "Silen Reach", "pos": [465, 905] },
+    { "id": "damar", "name": "Damar Quay", "pos": [720, 950] },
+    { "id": "arken", "name": "Arken Hollow", "pos": [925, 1025] },
+    { "id": "nareth", "name": "Nareth Coil", "pos": [175, 1195] },
+    { "id": "vey", "name": "Vey Coast", "pos": [435, 1155] },
+    { "id": "solmar", "name": "Solmar Ring", "pos": [695, 1195] },
+    { "id": "istren", "name": "Istren Fold", "pos": [905, 1275] }
+  ],
+  "links": [
+    ["kareth", "vorn"], ["vorn", "halden"], ["halden", "oris"],
+    ["kareth", "namar"], ["vorn", "ceyr"], ["halden", "talric"], ["oris", "estra"],
+    ["namar", "ceyr"], ["ceyr", "talric"], ["talric", "estra"],
+    ["namar", "rovan"], ["ceyr", "silen"], ["talric", "damar"], ["estra", "arken"],
+    ["rovan", "silen"], ["silen", "damar"], ["damar", "arken"],
+    ["rovan", "nareth"], ["silen", "vey"], ["damar", "solmar"], ["arken", "istren"],
+    ["nareth", "vey"], ["vey", "solmar"], ["solmar", "istren"],
+    ["halden", "ceyr"], ["damar", "istren"]
+  ],
+  "hidden_tags": [
+    "Trade Hub", "Media Core", "Border Zone", "Research Node", "Financial Gate",
+    "Civil Pressure Zone", "Signal Corridor", "Old Alliance", "Black Market Route",
+    "Diplomatic Junction"
+  ]
+}

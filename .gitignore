@@ -1,0 +1,17 @@
+# Godot generated/import cache
+.godot/
+
+# Exported builds
+export/
+exports/
+build/
+builds/
+*.apk
+*.aab
+*.exe
+*.zip
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/

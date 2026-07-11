@@ -12,7 +12,6 @@ signal tutorial_finished
 const STEPS: Array = [
 	{"advance": "region_selected", "text_key": "tutorial.region"},
 	{"advance": "region_read", "text_key": "tutorial.region_read"},
-	{"advance": "roster_opened", "text_key": "tutorial.roster"},
 	{"advance": "agent_selected", "text_key": "tutorial.agent"},
 	{"advance": "map_signals_selected", "text_key": "tutorial.map_signals"},
 	{"advance": "operation_resolved", "text_key": "tutorial.resolve"},

@@ -160,7 +160,16 @@ func _op_card(region: Dictionary, agent: Dictionary, op: Dictionary) -> Control:
 		vbox.add_child(_breakdown_view(preview))
 	if not available:
 		vbox.add_child(UITheme.label(L10n.t("operation.unavailable"), UITheme.FS_TINY, UITheme.DANGER))
+	_ignore_pointer_input(vbox)
 	return panel
+
+
+func _ignore_pointer_input(root: Control) -> void:
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child_variant in root.get_children():
+		var child := child_variant as Control
+		if child != null:
+			_ignore_pointer_input(child)
 
 
 func _add_visible_modifiers(parent: VBoxContainer, modifiers: Array) -> void:

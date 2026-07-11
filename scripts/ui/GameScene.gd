@@ -46,6 +46,7 @@ var _pulse_label: Label
 
 
 func _ready() -> void:
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if not GameState.campaign_active:
 		GameState.new_campaign(Balance.Difficulty.STANDARD)
 	_build_screen()
@@ -99,6 +100,7 @@ func _build_screen() -> void:
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_theme_constant_override("margin_left", UITheme.SPACE_S)
 	margin.add_theme_constant_override("margin_right", UITheme.SPACE_S)
 	margin.add_theme_constant_override("margin_top", UITheme.SPACE_S)
@@ -106,6 +108,7 @@ func _build_screen() -> void:
 	add_child(margin)
 
 	var layout := VBoxContainer.new()
+	layout.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layout.add_theme_constant_override("separation", UITheme.SPACE_S)
 	margin.add_child(layout)
 

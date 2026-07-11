@@ -7,11 +7,15 @@ signal region_tapped(region_id: String)
 
 const DESIGN_RECT := Rect2(0.0, 320.0, 1080.0, 1130.0)
 const FIT_PADDING := 14.0
+const DUPLICATE_INPUT_WINDOW_MSEC := 120
+const DUPLICATE_INPUT_DISTANCE := 16.0
 
 var _region_nodes: Dictionary = {}   # id -> RegionNode
 var _lines: Array[SignalLine] = []
 var _line_pairs: Array = []          # parallel array of [id_a, id_b]
 var _selected_id: String = ""
+var _last_activation_msec: int = -DUPLICATE_INPUT_WINDOW_MSEC
+var _last_activation_position: Vector2 = Vector2(-10000.0, -10000.0)
 var input_locked: bool = false
 
 
@@ -106,18 +110,35 @@ func fit_to_rect(target_size: Vector2) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if input_locked:
 		return
+	var pointer_position: Vector2
 	if event is InputEventScreenTouch and event.pressed:
-		var pos: Vector2 = get_canvas_transform().affine_inverse() * event.position
-		var best_id := ""
-		var best_dist := RegionNode.TAP_RADIUS
-		for id in _region_nodes:
-			var d: float = _region_nodes[id].position.distance_to(pos)
-			if d < best_dist:
-				best_dist = d
-				best_id = id
-		if best_id != "":
-			get_viewport().set_input_as_handled()
-			region_tapped.emit(best_id)
+		pointer_position = event.position
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		pointer_position = event.position
+	else:
+		return
+	if _is_duplicate_activation(pointer_position):
+		return
+	var local_position: Vector2 = get_global_transform_with_canvas().affine_inverse() * pointer_position
+	var best_id := ""
+	var best_dist := RegionNode.TAP_RADIUS
+	for id in _region_nodes:
+		var d: float = _region_nodes[id].position.distance_to(local_position)
+		if d < best_dist:
+			best_dist = d
+			best_id = id
+	if best_id == "":
+		return
+	_last_activation_msec = Time.get_ticks_msec()
+	_last_activation_position = pointer_position
+	get_viewport().set_input_as_handled()
+	region_tapped.emit(best_id)
+
+
+func _is_duplicate_activation(pointer_position: Vector2) -> bool:
+	var elapsed: int = Time.get_ticks_msec() - _last_activation_msec
+	return elapsed <= DUPLICATE_INPUT_WINDOW_MSEC \
+		and pointer_position.distance_to(_last_activation_position) <= DUPLICATE_INPUT_DISTANCE
 
 
 func _draw() -> void:

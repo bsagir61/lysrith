@@ -112,6 +112,11 @@ func _op_card(region: Dictionary, agent: Dictionary, op: Dictionary) -> Control:
 	var border: Color = UITheme.ACCENT if selected else (UITheme.EDGE if available else UITheme.DANGER)
 
 	var panel := UITheme.info_card(border, selected)
+	if selected:
+		var selected_style := panel.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
+		selected_style.set_border_width_all(2)
+		selected_style.set_border_width(SIDE_LEFT, UITheme.SECTION_MARKER_WIDTH)
+		panel.add_theme_stylebox_override("panel", selected_style)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.gui_input.connect(func(event: InputEvent) -> void:
 		if event is InputEventScreenTouch and event.pressed:

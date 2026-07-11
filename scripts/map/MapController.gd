@@ -29,7 +29,7 @@ func _ready() -> void:
 func _build_regions() -> void:
 	for def in RegionData.regions:
 		var node := RegionNode.new()
-		node.setup(def["id"], def["name"], Vector2(def["pos"][0], def["pos"][1]))
+		node.setup(def["id"], L10n.region_name(def["id"]), Vector2(def["pos"][0], def["pos"][1]))
 		add_child(node)
 		_region_nodes[def["id"]] = node
 

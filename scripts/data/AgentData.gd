@@ -26,8 +26,8 @@ func get_def(agent_id: String) -> Dictionary:
 
 
 func trait_name(trait_id: String) -> String:
-	return traits.get(trait_id, {}).get("name", trait_id)
+	return L10n.t("agent_trait.%s.name" % trait_id)
 
 
 func trait_desc(trait_id: String) -> String:
-	return traits.get(trait_id, {}).get("desc", "")
+	return L10n.t("agent_trait.%s.description" % trait_id)

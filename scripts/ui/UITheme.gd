@@ -2,23 +2,24 @@ extends Node
 ## UITheme.gd - the single visual system for LYSRITH.
 ## Central colors, spacing, font sizes and styled-widget factories.
 ## Every panel and screen builds its widgets through these helpers so the
-## whole game shares one look: dark navy, glass cards, pale cyan accents.
+## whole game shares one look: dark dossier surfaces and restrained signal color.
 
 # ---------- Palette ----------
-const BG_DEEP := Color("060a12")
-const BG_PANEL := Color("0a101b")
-const CARD := Color("111a29")
-const CARD_RAISED := Color("16223468")   # glass-like, semi-transparent
-const EDGE := Color("223349")
-const EDGE_BRIGHT := Color("35506e")
-const TEXT := Color("d9e6ee")
-const TEXT_DIM := Color("7f92a6")
-const ACCENT := Color("8fd8e8")          # pale cyan
-const ACCENT_DIM := Color("3f6b7d")
-const WARN := Color("d8a44c")            # muted amber
-const DANGER := Color("c85555")          # restrained red
-const SAFE := Color("74c3ad")
-const COLLAPSED := Color("55606c")
+const BG_DEEP := Color("080c0f")
+const BG_PANEL := Color("0e171d")
+const CARD := Color("142027")
+const CARD_RAISED := Color("1a2931")
+const EDGE := Color("31434b")
+const EDGE_BRIGHT := Color("49606a")
+const TEXT := Color("e7e2d6")
+const TEXT_DIM := Color("9ca8a8")
+const ACCENT := Color("4fb7a6")
+const ACCENT_BRIGHT := Color("81d0c1")
+const ACCENT_DIM := Color("326f68")
+const WARN := Color("d0a453")
+const DANGER := Color("d86452")
+const SAFE := Color("7fab78")
+const COLLAPSED := Color("59666a")
 
 # ---------- Spacing / metrics ----------
 const SPACE_XXS := 4
@@ -27,8 +28,8 @@ const SPACE_S := 16
 const SPACE_M := 24
 const SPACE_L := 36
 const SPACE_XL := 56
-const RADIUS := 16
-const RADIUS_COMPACT := 10
+const RADIUS := 6
+const RADIUS_COMPACT := 4
 const CARD_PADDING := 22
 const SAFE_MARGIN := 24
 const CHIP_MIN_HEIGHT := 64
@@ -91,13 +92,15 @@ func card_style(border: Color = EDGE) -> StyleBoxFlat:
 
 
 func glass_style() -> StyleBoxFlat:
+	# Kept for caller compatibility; the dossier system uses an opaque raised surface.
 	var sb := panel_style(CARD_RAISED, EDGE)
 	return sb
 
 
 func chip_style(color: Color, emphasized: bool = false) -> StyleBoxFlat:
-	var alpha := 0.16 if emphasized else 0.08
-	var sb := panel_style(Color(color.r, color.g, color.b, alpha), Color(color.r, color.g, color.b, 0.42), RADIUS_COMPACT)
+	var tint: float = 0.16 if emphasized else 0.08
+	var base: Color = CARD_RAISED if emphasized else CARD
+	var sb := panel_style(base.lerp(color, tint), color.lerp(EDGE, 0.35), RADIUS_COMPACT)
 	sb.set_content_margin_all(SPACE_XS)
 	return sb
 
@@ -112,7 +115,7 @@ func label(text: String, size: int = FS_BODY, color: Color = TEXT) -> Label:
 	return l
 
 
-func title(text: String, size: int = FS_TITLE, color: Color = ACCENT) -> Label:
+func title(text: String, size: int = FS_TITLE, color: Color = ACCENT_BRIGHT) -> Label:
 	var l := label(text.to_upper(), size, color)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	return l
@@ -139,32 +142,32 @@ func button(text: String, kind: String = "ghost", small: bool = false) -> Button
 
 func style_button(b: Button, kind: String = "ghost", small: bool = false) -> void:
 	var accent := ACCENT
-	var fill := Color(ACCENT.r, ACCENT.g, ACCENT.b, 0.10)
-	var edge := ACCENT_DIM
+	var fill := CARD_RAISED.lerp(ACCENT, 0.16)
+	var edge := ACCENT
 	match kind:
 		"danger":
 			accent = DANGER
-			fill = Color(DANGER.r, DANGER.g, DANGER.b, 0.10)
-			edge = Color(DANGER.r, DANGER.g, DANGER.b, 0.45)
+			fill = CARD_RAISED.lerp(DANGER, 0.14)
+			edge = DANGER
 		"warn":
 			accent = WARN
-			fill = Color(WARN.r, WARN.g, WARN.b, 0.10)
-			edge = Color(WARN.r, WARN.g, WARN.b, 0.45)
+			fill = CARD_RAISED.lerp(WARN, 0.14)
+			edge = WARN
 		"ghost":
 			accent = TEXT
-			fill = Color(CARD.r, CARD.g, CARD.b, 0.85)
+			fill = CARD
 			edge = EDGE_BRIGHT
 	var normal := StyleBoxFlat.new()
 	normal.bg_color = fill
 	normal.border_color = edge
 	normal.set_border_width_all(1)
-	normal.set_corner_radius_all(RADIUS - 4)
+	normal.set_corner_radius_all(RADIUS_COMPACT)
 	normal.set_content_margin_all(SPACE_S)
 	var pressed := normal.duplicate() as StyleBoxFlat
-	pressed.bg_color = Color(fill.r, fill.g, fill.b, minf(fill.a + 0.15, 1.0))
+	pressed.bg_color = fill.lerp(accent, 0.14)
 	pressed.border_color = accent
 	var disabled := normal.duplicate() as StyleBoxFlat
-	disabled.bg_color = Color(CARD.r, CARD.g, CARD.b, 0.4)
+	disabled.bg_color = CARD
 	disabled.border_color = EDGE
 	b.add_theme_stylebox_override("normal", normal)
 	b.add_theme_stylebox_override("hover", normal)
@@ -172,7 +175,7 @@ func style_button(b: Button, kind: String = "ghost", small: bool = false) -> voi
 	b.add_theme_stylebox_override("focus", normal)
 	b.add_theme_stylebox_override("disabled", disabled)
 	b.add_theme_color_override("font_color", accent)
-	b.add_theme_color_override("font_pressed_color", ACCENT if kind != "danger" else DANGER)
+	b.add_theme_color_override("font_pressed_color", accent)
 	b.add_theme_color_override("font_hover_color", accent)
 	b.add_theme_color_override("font_disabled_color", TEXT_DIM)
 	b.add_theme_font_size_override("font_size", fs(FS_BODY if not small else FS_SMALL))
@@ -190,7 +193,7 @@ func progress_bar(color: Color, height: float = 26.0) -> ProgressBar:
 
 func style_bar(bar: ProgressBar, color: Color) -> void:
 	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0, 0, 0, 0.45)
+	bg.bg_color = BG_DEEP
 	bg.border_color = EDGE
 	bg.set_border_width_all(1)
 	bg.set_corner_radius_all(6)

@@ -192,21 +192,21 @@ func apply_effects(effects: Dictionary) -> Array[String]:
 		if effects.has("region_stability"):
 			var v: int = int(round(float(effects["region_stability"]) * (severity if float(effects["region_stability"]) < 0 else 1.0)))
 			target["stability"] = clampi(int(target["stability"]) + v, 0, 100)
-			lines.append("%s stability %s%d" % [target["name"], "+" if v >= 0 else "", v])
+			lines.append(L10n.t("event.result.region_stability", [_region_name(target), "+" if v >= 0 else "", v]))
 			region_updated.emit(target["id"])
 		if effects.has("region_rival"):
 			var v2: int = int(round(float(effects["region_rival"]) * (severity if float(effects["region_rival"]) > 0 else 1.0)))
 			target["rival_influence"] = clampi(int(target["rival_influence"]) + v2, 0, 100)
-			lines.append("%s rival influence %s%d" % [target["name"], "+" if v2 >= 0 else "", v2])
+			lines.append(L10n.t("event.result.region_rival", [_region_name(target), "+" if v2 >= 0 else "", v2]))
 			region_updated.emit(target["id"])
 		if effects.has("region_pressure"):
 			var v3: int = int(effects["region_pressure"])
 			target["public_pressure"] = clampi(int(target["public_pressure"]) + v3, 0, 100)
-			lines.append("%s public pressure %s%d" % [target["name"], "+" if v3 >= 0 else "", v3])
+			lines.append(L10n.t("event.result.region_pressure", [_region_name(target), "+" if v3 >= 0 else "", v3]))
 			region_updated.emit(target["id"])
 		if effects.has("region_rival_reveal"):
 			target["intel_level"] = maxi(int(target["intel_level"]), 2)
-			lines.append("Rival presence in %s charted (Intel Level 2)" % target["name"])
+			lines.append(L10n.t("event.result.rival_reveal", [_region_name(target)]))
 			region_updated.emit(target["id"])
 		if effects.has("reveal_tag"):
 			var hidden: Array = regions.filter(func(r): return not r["tag_revealed"] and not r["collapsed"])
@@ -214,7 +214,7 @@ func apply_effects(effects: Dictionary) -> Array[String]:
 				var reg: Dictionary = RandomService.pick(hidden)
 				reg["tag_revealed"] = true
 				lines.append(L10n.t("resolve.event_identity_revealed", [
-					reg["name"],
+					_region_name(reg),
 					L10n.t(RegionTagRules.name_key(String(reg["hidden_tag"]))),
 				]))
 				region_updated.emit(reg["id"])
@@ -223,21 +223,21 @@ func apply_effects(effects: Dictionary) -> Array[String]:
 		var v4: int = int(round(float(effects["all_stability"]) * (severity if float(effects["all_stability"]) < 0 else 1.0)))
 		for r in active_regions():
 			r["stability"] = clampi(int(r["stability"]) + v4, 0, 100)
-		lines.append("All regions stability %s%d" % ["+" if v4 >= 0 else "", v4])
+		lines.append(L10n.t("event.result.all_stability", ["+" if v4 >= 0 else "", v4]))
 	if effects.has("agent_fatigue"):
 		var a: Dictionary = RandomService.pick(agents)
 		a["fatigue"] = clampi(int(a["fatigue"]) + int(effects["agent_fatigue"]), 0, 100)
-		lines.append("%s fatigue +%d" % [a["name"], int(effects["agent_fatigue"])])
+		lines.append(L10n.t("event.result.agent_fatigue", [a["name"], int(effects["agent_fatigue"])]))
 	if effects.has("agent_rest"):
 		var tired: Array = agents.filter(func(ag): return int(ag["fatigue"]) > 0)
 		if not tired.is_empty():
 			var a2: Dictionary = RandomService.pick(tired)
 			a2["fatigue"] = maxi(0, int(a2["fatigue"]) - int(effects["agent_rest"]))
-			lines.append("%s recovers (-%d fatigue)" % [a2["name"], int(effects["agent_rest"])])
+			lines.append(L10n.t("event.result.agent_rest", [a2["name"], int(effects["agent_rest"])]))
 	if effects.has("all_agent_rest"):
 		for a3 in agents:
 			a3["fatigue"] = maxi(0, int(a3["fatigue"]) - int(effects["all_agent_rest"]))
-		lines.append("All agents recover %d fatigue" % int(effects["all_agent_rest"]))
+		lines.append(L10n.t("event.result.all_agent_rest", [int(effects["all_agent_rest"])]))
 
 	resources_changed.emit()
 	return lines
@@ -291,7 +291,7 @@ func to_dict() -> Dictionary:
 		"version": 1,
 		"difficulty": difficulty,
 		"turn": turn,
-		"seed": campaign_seed,
+		"seed": str(campaign_seed),
 		"tutorial_done": tutorial_done,
 		"directive_seen": directive_seen,
 		"intel": intel, "funds": funds, "trust": trust, "heat": heat, "cover": cover,
@@ -349,9 +349,11 @@ func _is_harmful(key: String, val: float) -> bool:
 
 
 func _describe_delta(key: String, val: int) -> String:
-	var names := {
-		"intel": "Intel", "funds": "Funds", "trust": "Trust", "heat": "Heat",
-		"cover": "Cover", "global_exposure": "Global Exposure",
-		"rival_momentum": "Rival Momentum", "rival_exposure": "Rival Exposure",
-	}
-	return "%s %s%d" % [names.get(key, key), "+" if val >= 0 else "", val]
+	return L10n.t("event.result.resource_delta", [
+		L10n.t("resource.%s" % key),
+		("+" if val >= 0 else "") + str(val),
+	])
+
+
+func _region_name(region: Dictionary) -> String:
+	return L10n.region_name(region)

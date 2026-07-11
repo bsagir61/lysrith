@@ -77,7 +77,7 @@ func _rebuild() -> void:
 	var assessment: Dictionary = RegionAssessment.assess(r)
 	var assessment_color: Color = _assessment_color(String(assessment.get("id", "under_observed")))
 
-	_content.add_child(UITheme.label(String(r.get("name", _region_id)), UITheme.FS_LARGE, UITheme.ACCENT))
+	_content.add_child(UITheme.label(L10n.region_name(r), UITheme.FS_LARGE, UITheme.ACCENT))
 	var badges := HBoxContainer.new()
 	badges.add_theme_constant_override("separation", UITheme.SPACE_S)
 	var assessment_badge := UITheme.status_chip(L10n.t(String(assessment["text_key"])), assessment_color, bool(assessment.get("urgent", false)))

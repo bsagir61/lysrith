@@ -34,13 +34,16 @@ const SAFE_MARGIN := 24
 const CHIP_MIN_HEIGHT := 64
 const STATUS_MIN_HEIGHT := 48
 const SECTION_MARKER_WIDTH := 6
+const MAP_IDENTITY_MARKER_SIZE := 10.0
+const RISK_BADGE_WIDTH := 180
 const BUTTON_HEIGHT := 108
-const BUTTON_HEIGHT_SMALL := 84
+const BUTTON_HEIGHT_SMALL := 88
 const TOUCH_MIN := 88.0
 const MAP_MIN_HEIGHT := 820
 const BOTTOM_SHEET_HEIGHT := 1240
 const MODAL_WIDTH := 920
 const MODAL_HEIGHT := 1420
+const INFO_MODAL_HEIGHT := 900
 const OVERLAY_OPACITY := 0.62
 
 # ---------- Animation durations ----------

@@ -58,7 +58,10 @@ func _refresh_lines() -> void:
 		var rb: Dictionary = GameState.get_region(pair[1])
 		var active := false
 		if not ra.is_empty() and not rb.is_empty():
-			active = int(ra["rival_influence"]) >= 50 or int(rb["rival_influence"]) >= 50
+			var a_known: bool = int(ra.get("intel_level", 0)) >= 1
+			var b_known: bool = int(rb.get("intel_level", 0)) >= 1
+			active = (a_known and int(ra.get("rival_influence", 0)) >= 50) \
+				or (b_known and int(rb.get("rival_influence", 0)) >= 50)
 		_lines[i].set_rival_active(active)
 
 

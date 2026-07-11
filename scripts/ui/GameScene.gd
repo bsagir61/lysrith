@@ -20,17 +20,21 @@ var _event_modal
 var _debrief
 
 var _hud_labels: Dictionary = {}
+var _hud_chips: Dictionary = {}
 var _objective_label: Label
 var _danger_label: Label
 var _exposure_bar: ProgressBar
 var _rival_bar: ProgressBar
-var _heat_label: Label
 var _flow_label: Label
 var _flow_detail_label: Label
 var _tutorial_banner: PanelContainer
 var _tutorial_label: Label
 var _directive_overlay: Control
 var _directive_card: PanelContainer
+var _info_overlay: Control
+var _info_card: PanelContainer
+var _info_title: Label
+var _info_content: VBoxContainer
 
 var _pending_region: String = ""
 var _pending_agent: String = ""
@@ -38,6 +42,7 @@ var _pending_event: Dictionary = {}
 var _pending_end: Dictionary = {}
 var _debrief_mode: String = "turn"
 var _heat_pulse_t: float = 0.0
+var _pulse_label: Label
 
 
 func _ready() -> void:
@@ -51,6 +56,7 @@ func _ready() -> void:
 	call_deferred("_fit_map_to_view")
 	_build_panels()
 	_build_directive_card()
+	_build_info_overlay()
 	GameState.resources_changed.connect(_refresh_hud)
 	_refresh_hud()
 	_set_step(L10n.t("game.step_region"), L10n.t("game.step_region_detail"))
@@ -62,17 +68,24 @@ func _ready() -> void:
 	TutorialManager.step_changed.connect(func(text: String) -> void:
 		_tutorial_label.text = text
 		_tutorial_banner.visible = not _directive_open())
+	TutorialManager.context_hint.connect(func(text: String) -> void:
+		_tutorial_label.text = text
+		_tutorial_banner.visible = not _directive_open())
 	TutorialManager.tutorial_finished.connect(func() -> void:
 		_tutorial_banner.visible = false)
 
 
 func _process(delta: float) -> void:
-	# Heat meter pulse when running hot.
-	if GameState.heat >= 60 and not SettingsManager.reduce_motion:
+	var next_pulse: Label = _critical_pulse_label()
+	if _pulse_label != next_pulse:
+		if _pulse_label != null:
+			_pulse_label.modulate.a = 1.0
+		_pulse_label = next_pulse
+	if _pulse_label != null and not SettingsManager.reduce_motion:
 		_heat_pulse_t += delta * 5.0
-		_heat_label.modulate.a = 0.7 + 0.3 * sin(_heat_pulse_t)
-	else:
-		_heat_label.modulate.a = 1.0
+		_pulse_label.modulate.a = 0.72 + 0.28 * sin(_heat_pulse_t)
+	elif _pulse_label != null:
+		_pulse_label.modulate.a = 1.0
 
 
 # ---------- UI construction ----------
@@ -96,8 +109,9 @@ func _build_screen() -> void:
 	layout.add_theme_constant_override("separation", UITheme.SPACE_S)
 	margin.add_child(layout)
 
-	_build_hud(layout)
 	_build_objective_strip(layout)
+	_build_hud(layout)
+	_build_world_context(layout)
 	_build_map_area(layout)
 	_build_tutorial_banner(layout)
 	_build_bottom_bar(layout)
@@ -113,20 +127,24 @@ func _build_hud(parent: Container) -> void:
 	row.add_theme_constant_override("separation", UITheme.SPACE_XS)
 	hud.add_child(row)
 
-	_resource_chip(row, "turn", L10n.t("game.turn"), UITheme.ACCENT)
 	_resource_chip(row, "intel", L10n.t("game.intel"), UITheme.TEXT)
 	_resource_chip(row, "funds", L10n.t("game.funds"), UITheme.TEXT)
 	_resource_chip(row, "trust", L10n.t("game.trust"), UITheme.TEXT)
 	_resource_chip(row, "cover", L10n.t("game.cover"), UITheme.TEXT)
 	_resource_chip(row, "heat", L10n.t("game.heat"), UITheme.TEXT)
-	_heat_label = _hud_labels["heat"]
 
 
 func _resource_chip(parent: Container, key: String, caption: String, color: Color) -> void:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", UITheme.chip_style(color))
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.custom_minimum_size = Vector2(0, UITheme.CHIP_MIN_HEIGHT)
+	parent.add_child(panel)
+	_hud_chips[key] = panel
 	var chip := VBoxContainer.new()
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chip.add_theme_constant_override("separation", 0)
-	parent.add_child(chip)
+	panel.add_child(chip)
 
 	var cap := UITheme.label(caption, UITheme.FS_MICRO, UITheme.TEXT_DIM)
 	cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -138,6 +156,36 @@ func _resource_chip(parent: Container, key: String, caption: String, color: Colo
 	val.autowrap_mode = TextServer.AUTOWRAP_OFF
 	chip.add_child(val)
 	_hud_labels[key] = val
+
+
+func _build_world_context(parent: Container) -> void:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", UITheme.glass_style())
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	parent.add_child(panel)
+
+	var grid := GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", UITheme.SPACE_XS)
+	grid.add_theme_constant_override("v_separation", UITheme.SPACE_XS)
+	panel.add_child(grid)
+	_resource_chip(grid, "turn", L10n.t("game.turn"), UITheme.ACCENT)
+	_resource_chip(grid, "difficulty", L10n.t("game.difficulty"), UITheme.TEXT_DIM)
+	_resource_chip(grid, "collapsed", L10n.t("game.lost"), UITheme.TEXT_DIM)
+	_resource_chip(grid, "stability", L10n.t("game.world_stability"), UITheme.TEXT_DIM)
+	_resource_chip(grid, "momentum", L10n.t("game.rival_momentum"), UITheme.TEXT_DIM)
+
+	var tools := HBoxContainer.new()
+	tools.add_theme_constant_override("separation", UITheme.SPACE_XS)
+	grid.add_child(tools)
+	var outlook := UITheme.button(L10n.t("game.outlook"), "ghost", true)
+	outlook.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	outlook.pressed.connect(_show_outlook)
+	tools.add_child(outlook)
+	var legend := UITheme.button(L10n.t("game.legend"), "ghost", true)
+	legend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	legend.pressed.connect(_show_legend)
+	tools.add_child(legend)
 
 
 func _build_objective_strip(parent: Container) -> void:
@@ -156,17 +204,6 @@ func _build_objective_strip(parent: Container) -> void:
 
 	_rival_bar = _meter_row(vbox, L10n.t("game.rival_meter"), UITheme.ACCENT, "rival_val")
 	_exposure_bar = _meter_row(vbox, L10n.t("game.global_meter"), UITheme.DANGER, "exposure_val")
-
-	var world_row := HBoxContainer.new()
-	world_row.add_theme_constant_override("separation", UITheme.SPACE_S)
-	vbox.add_child(world_row)
-	_hud_labels["stability"] = UITheme.label("", UITheme.FS_MICRO, UITheme.TEXT_DIM)
-	_hud_labels["stability"].size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	world_row.add_child(_hud_labels["stability"])
-	_hud_labels["momentum"] = UITheme.label("", UITheme.FS_MICRO, UITheme.TEXT_DIM)
-	_hud_labels["momentum"].horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_hud_labels["momentum"].size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	world_row.add_child(_hud_labels["momentum"])
 
 	_danger_label = UITheme.label("", UITheme.FS_MICRO, UITheme.TEXT_DIM)
 	_danger_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -341,32 +378,200 @@ func _build_directive_card() -> void:
 	content.add_child(begin)
 
 
+func _build_info_overlay() -> void:
+	_info_overlay = Control.new()
+	_info_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_info_overlay.visible = false
+	_info_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(_info_overlay)
+
+	var dim := ColorRect.new()
+	dim.color = Color(0, 0, 0, UITheme.OVERLAY_OPACITY)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_info_overlay.add_child(dim)
+
+	var margin := UITheme.safe_area_margin()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_info_overlay.add_child(margin)
+	var center := CenterContainer.new()
+	margin.add_child(center)
+
+	_info_card = PanelContainer.new()
+	_info_card.add_theme_stylebox_override("panel", UITheme.panel_style(UITheme.BG_PANEL, UITheme.EDGE_BRIGHT))
+	_info_card.custom_minimum_size = Vector2(UITheme.MODAL_WIDTH, UITheme.INFO_MODAL_HEIGHT)
+	center.add_child(_info_card)
+
+	var shell := VBoxContainer.new()
+	shell.add_theme_constant_override("separation", UITheme.SPACE_S)
+	_info_card.add_child(shell)
+	_info_title = UITheme.title("", UITheme.FS_LARGE)
+	shell.add_child(_info_title)
+	shell.add_child(UITheme.hseparator())
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	shell.add_child(scroll)
+	_info_content = VBoxContainer.new()
+	_info_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_info_content.add_theme_constant_override("separation", UITheme.SPACE_S)
+	scroll.add_child(_info_content)
+	var close := UITheme.button(L10n.t("common.close"), "ghost", true)
+	close.pressed.connect(func() -> void: _info_overlay.visible = false)
+	shell.add_child(close)
+
+
+func _show_outlook() -> void:
+	_clear_info_content()
+	_info_title.text = L10n.t("outlook.title")
+	var outlook: Dictionary = TurnResolver.turn_outlook()
+	_info_content.add_child(UITheme.section_header(L10n.t("outlook.economy"), UITheme.ACCENT))
+	_info_content.add_child(UITheme.modifier_row(L10n.t("outlook.base_income"), _signed_value(int(outlook["base_income"])), UITheme.SAFE))
+	_info_content.add_child(UITheme.modifier_row(L10n.t("outlook.trust_income"), _signed_value(int(outlook["trust_income"])), UITheme.SAFE))
+	_info_content.add_child(UITheme.modifier_row(L10n.t("outlook.agent_upkeep"), _signed_value(-int(outlook["upkeep"])), UITheme.WARN))
+	if int(outlook["trade_income"]) > 0:
+		_info_content.add_child(UITheme.modifier_row(L10n.t("outlook.trade_hubs"), _signed_value(int(outlook["trade_income"])), UITheme.SAFE))
+	var budget_change: int = int(outlook["budget_change"])
+	_info_content.add_child(UITheme.modifier_row(L10n.t("outlook.budget_change"), _signed_value(budget_change), UITheme.SAFE if budget_change >= 0 else UITheme.DANGER))
+	_info_content.add_child(UITheme.section_header(L10n.t("outlook.pressure"), UITheme.ACCENT))
+	var heat_change: int = int(outlook["heat_change"])
+	_info_content.add_child(UITheme.modifier_row(L10n.t("outlook.heat_change"), _signed_value(heat_change), UITheme.SAFE if heat_change <= 0 else UITheme.DANGER))
+	_info_content.add_child(UITheme.modifier_row(L10n.t("outlook.exposure_pressure"), L10n.t("outlook.approx", [float(outlook["exposure_pressure"])]), UITheme.WARN))
+	_info_content.add_child(UITheme.modifier_row(L10n.t("outlook.rival_activity"), L10n.t("outlook.activity.%s" % String(outlook["rival_activity"])), UITheme.WARN))
+	_info_content.add_child(UITheme.label(L10n.t("outlook.disclaimer"), UITheme.FS_TINY, UITheme.TEXT_DIM))
+	_show_info_overlay()
+
+
+func _show_legend() -> void:
+	_clear_info_content()
+	_info_title.text = L10n.t("legend.title")
+	_info_content.add_child(_legend_row(UITheme.DANGER, L10n.t("legend.risk.title"), L10n.t("legend.risk.body")))
+	_info_content.add_child(_legend_row(UITheme.SAFE, L10n.t("legend.opportunity.title"), L10n.t("legend.opportunity.body")))
+	_info_content.add_child(_legend_row(UITheme.ACCENT, L10n.t("legend.intel.title"), L10n.t("legend.intel.body")))
+	_info_content.add_child(_legend_row(UITheme.ACCENT, L10n.t("legend.selected.title"), L10n.t("legend.selected.body")))
+	_info_content.add_child(_legend_row(UITheme.COLLAPSED, L10n.t("legend.collapsed.title"), L10n.t("legend.collapsed.body")))
+	_info_content.add_child(_legend_row(UITheme.SAFE, L10n.t("legend.identity.title"), L10n.t("legend.identity.body")))
+	_show_info_overlay()
+
+
+func _legend_row(color: Color, title_text: String, body_text: String) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", UITheme.SPACE_S)
+	var marker := ColorRect.new()
+	marker.color = color
+	marker.custom_minimum_size = Vector2(UITheme.SECTION_MARKER_WIDTH, 0)
+	row.add_child(marker)
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.add_theme_constant_override("separation", UITheme.SPACE_XS)
+	row.add_child(copy)
+	copy.add_child(UITheme.label(title_text, UITheme.FS_SMALL, color))
+	copy.add_child(UITheme.label(body_text, UITheme.FS_TINY, UITheme.TEXT_DIM))
+	return row
+
+
+func _show_info_overlay() -> void:
+	_info_overlay.visible = true
+	if not SettingsManager.reduce_motion:
+		_info_card.modulate.a = 0.0
+		var tween := create_tween()
+		tween.tween_property(_info_card, "modulate:a", 1.0, UITheme.ANIM_FAST)
+
+
+func _clear_info_content() -> void:
+	for child_variant in _info_content.get_children():
+		var child: Node = child_variant
+		_info_content.remove_child(child)
+		child.queue_free()
+
+
+func _signed_value(value: int) -> String:
+	return "+%d" % value if value > 0 else str(value)
+
+
 # ---------- HUD refresh ----------
 
 func _refresh_hud() -> void:
 	_hud_labels["turn"].text = str(GameState.turn)
+	_hud_labels["difficulty"].text = L10n.t("difficulty.%d.short" % GameState.difficulty)
 	_hud_labels["intel"].text = str(GameState.intel)
 	_hud_labels["funds"].text = str(GameState.funds)
-	_hud_labels["funds"].add_theme_color_override("font_color",
-		UITheme.DANGER if GameState.funds < 0 else UITheme.TEXT)
+	var funds_color: Color = UITheme.DANGER if GameState.funds < 0 else UITheme.TEXT
+	_hud_labels["funds"].add_theme_color_override("font_color", funds_color)
+	_style_hud_chip("funds", funds_color, GameState.funds < 0)
 	_hud_labels["trust"].text = str(GameState.trust)
-	_hud_labels["trust"].add_theme_color_override("font_color", UITheme.level_color(float(GameState.trust)))
+	var trust_color: Color = UITheme.DANGER if GameState.trust <= Balance.UI_TRUST_DANGER_AT else UITheme.level_color(float(GameState.trust))
+	_hud_labels["trust"].add_theme_color_override("font_color", trust_color)
+	_style_hud_chip("trust", trust_color, GameState.trust <= Balance.UI_TRUST_DANGER_AT)
 	_hud_labels["cover"].text = str(GameState.cover)
 	_hud_labels["heat"].text = str(GameState.heat)
-	_hud_labels["heat"].add_theme_color_override("font_color", UITheme.danger_color(float(GameState.heat)))
+	var heat_color: Color = UITheme.DANGER if GameState.heat >= Balance.UI_HEAT_DANGER_AT else (UITheme.WARN if GameState.heat >= Balance.UI_HEAT_WARNING_AT else UITheme.ACCENT)
+	_hud_labels["heat"].add_theme_color_override("font_color", heat_color)
+	_style_hud_chip("heat", heat_color, GameState.heat >= Balance.UI_HEAT_WARNING_AT)
+	_style_hud_chip("intel", UITheme.ACCENT, false)
+	_style_hud_chip("cover", UITheme.SAFE, false)
 	_exposure_bar.value = GameState.global_exposure
 	_hud_labels["exposure_val"].text = "%d/100" % int(GameState.global_exposure)
+	_hud_labels["exposure_val"].add_theme_color_override("font_color", UITheme.DANGER if GameState.global_exposure >= Balance.UI_GLOBAL_EXPOSURE_DANGER_AT else UITheme.WARN)
 	_rival_bar.value = GameState.rival_exposure
 	_hud_labels["rival_val"].text = "%d/100" % int(GameState.rival_exposure)
-	_hud_labels["stability"].text = L10n.t("game.stability", [int(GameState.world_stability())])
-	_hud_labels["momentum"].text = L10n.t("game.momentum", [int(GameState.rival_momentum)])
+	var stability: float = GameState.world_stability()
+	_hud_labels["stability"].text = str(int(stability))
+	_hud_labels["stability"].add_theme_color_override("font_color", UITheme.level_color(stability))
+	_style_hud_chip("stability", UITheme.level_color(stability), stability < Balance.ASSESS_UNSTABLE_STABILITY_AT)
+	_hud_labels["momentum"].text = str(int(GameState.rival_momentum))
+	var momentum_color: Color = UITheme.WARN if GameState.rival_momentum >= Balance.UI_RIVAL_MOMENTUM_WARNING_AT else UITheme.TEXT_DIM
+	_hud_labels["momentum"].add_theme_color_override("font_color", momentum_color)
+	_style_hud_chip("momentum", momentum_color, GameState.rival_momentum >= Balance.UI_RIVAL_MOMENTUM_WARNING_AT)
+	_hud_labels["collapsed"].text = "%d/%d" % [GameState.collapsed_count(), Balance.COLLAPSE_LIMIT]
+	var collapsed_danger: bool = GameState.collapsed_count() >= Balance.UI_COLLAPSED_DANGER_AT
+	_hud_labels["collapsed"].add_theme_color_override("font_color", UITheme.DANGER if collapsed_danger else UITheme.TEXT_DIM)
+	_style_hud_chip("collapsed", UITheme.DANGER if collapsed_danger else UITheme.TEXT_DIM, collapsed_danger)
+	_style_hud_chip("turn", UITheme.ACCENT, false)
+	_style_hud_chip("difficulty", UITheme.TEXT_DIM, false)
 	_objective_label.text = L10n.t("game.objective")
-	_danger_label.text = L10n.t("game.danger", [
-		int(GameState.global_exposure),
-		GameState.trust,
-		GameState.collapsed_count(),
-		Balance.COLLAPSE_LIMIT,
-	])
+	_danger_label.text = _hud_warning_text()
+	_danger_label.add_theme_color_override("font_color", UITheme.DANGER if _critical_pulse_label() != null else UITheme.TEXT_DIM)
+
+
+func _style_hud_chip(key: String, color: Color, emphasized: bool) -> void:
+	var panel: PanelContainer = _hud_chips.get(key)
+	if panel != null:
+		panel.add_theme_stylebox_override("panel", UITheme.chip_style(color, emphasized))
+
+
+func _hud_warning_text() -> String:
+	if GameState.global_exposure >= Balance.UI_GLOBAL_EXPOSURE_DANGER_AT:
+		return L10n.t("hud.warning.global", [int(GameState.global_exposure)])
+	if GameState.trust <= Balance.UI_TRUST_DANGER_AT:
+		return L10n.t("hud.warning.trust", [GameState.trust])
+	if GameState.funds < 0:
+		return L10n.t("hud.warning.funds", [GameState.funds])
+	if GameState.heat >= Balance.UI_HEAT_DANGER_AT:
+		return L10n.t("hud.warning.heat_danger", [GameState.heat])
+	if GameState.collapsed_count() >= Balance.UI_COLLAPSED_DANGER_AT:
+		return L10n.t("hud.warning.collapsed", [GameState.collapsed_count(), Balance.COLLAPSE_LIMIT])
+	if GameState.heat >= Balance.UI_HEAT_WARNING_AT:
+		return L10n.t("hud.warning.heat", [GameState.heat])
+	if GameState.rival_momentum >= Balance.UI_RIVAL_MOMENTUM_WARNING_AT:
+		return L10n.t("hud.warning.momentum", [int(GameState.rival_momentum)])
+	return L10n.t("hud.risks_nominal", [Balance.COLLAPSE_LIMIT])
+
+
+func _critical_pulse_label() -> Label:
+	if _hud_labels.is_empty():
+		return null
+	if GameState.global_exposure >= Balance.UI_GLOBAL_EXPOSURE_DANGER_AT:
+		return _hud_labels.get("exposure_val") as Label
+	if GameState.trust <= Balance.UI_TRUST_DANGER_AT:
+		return _hud_labels.get("trust") as Label
+	if GameState.funds < 0:
+		return _hud_labels.get("funds") as Label
+	if GameState.heat >= Balance.UI_HEAT_DANGER_AT:
+		return _hud_labels.get("heat") as Label
+	if GameState.collapsed_count() >= Balance.UI_COLLAPSED_DANGER_AT:
+		return _hud_labels.get("collapsed") as Label
+	return null
 
 
 func _set_step(title: String, detail: String) -> void:
@@ -427,7 +632,7 @@ func _on_plan_requested(region_id: String) -> void:
 	_pending_region = region_id
 	_region_panel.visible = false
 	_set_step(L10n.t("game.step_agent"), L10n.t("game.step_agent_detail"))
-	_roster_panel.open(true)
+	_roster_panel.open(true, region_id)
 
 
 func _roster_view_mode() -> void:
@@ -444,7 +649,7 @@ func _on_agent_selected(agent_id: String) -> void:
 
 func _on_operation_confirmed(op_id: String) -> void:
 	_set_step(L10n.t("game.step_result"), L10n.t("game.step_result_detail"))
-	var before := _meter_snapshot()
+	var before := _meter_snapshot(_pending_region)
 	var result: Dictionary = TurnResolver.resolve_operation(_pending_region, _pending_agent, op_id)
 	_map.play_scan(_pending_region)
 	var success: bool = bool(result["success"])
@@ -452,6 +657,10 @@ func _on_operation_confirmed(op_id: String) -> void:
 	if success:
 		AudioManager.play_success()
 		UITransitions.flash(UITheme.SAFE, 0.12)
+	elif near_miss:
+		AudioManager.play_fail()
+		UITransitions.flash(UITheme.WARN, 0.10)
+		SettingsManager.vibrate(35)
 	else:
 		AudioManager.play_fail()
 		UITransitions.flash(UITheme.DANGER, 0.14)
@@ -461,15 +670,15 @@ func _on_operation_confirmed(op_id: String) -> void:
 	_pending_end = advance.get("end", {})
 	_map.refresh_all()
 	_map.clear_selection()
-	var lines: Array = []
 	var result_lines: Array = result.get("lines", [])
-	var advance_lines: Array = advance.get("lines", [])
-	lines.append_array(result_lines)
-	lines.append_array(advance_lines)
 	var verdict: String = L10n.t("game.verdict_success") if success else (L10n.t("game.verdict_near_miss") if near_miss else L10n.t("game.verdict_failure"))
-	var title: String = L10n.t("game.result_title", [result["op_name"], verdict, result["chance"], result["roll"]])
 	_debrief_mode = "turn"
-	_debrief.open(title, "success" if success else "fail", lines, before)
+	var result_kind: String = "success" if success else ("near_miss" if near_miss else "fail")
+	_debrief.open(verdict, result_kind, result_lines, before, {
+		"result": result,
+		"advance": advance,
+		"region_id": _pending_region,
+	})
 
 
 func _on_pass_turn() -> void:
@@ -483,7 +692,7 @@ func _on_pass_turn() -> void:
 	_map.refresh_all()
 	_debrief_mode = "turn"
 	var advance_lines: Array = advance.get("lines", [])
-	_debrief.open(L10n.t("game.pass_debrief_title"), "neutral", advance_lines, before)
+	_debrief.open(L10n.t("game.pass_debrief_title"), "neutral", advance_lines, before, {"advance": advance})
 
 
 func _on_debrief_dismissed() -> void:
@@ -535,13 +744,27 @@ func _handle_end() -> void:
 
 func _modal_open() -> bool:
 	return _directive_open() or _region_panel.visible or _op_panel.visible or _roster_panel.visible \
-		or _event_modal.visible or _debrief.visible
+		or _event_modal.visible or _debrief.visible or (_info_overlay != null and _info_overlay.visible)
 
 
-func _meter_snapshot() -> Dictionary:
-	return {
+func _meter_snapshot(region_id: String = "") -> Dictionary:
+	var snapshot := {
 		"global_exposure": GameState.global_exposure,
 		"rival_exposure": GameState.rival_exposure,
 		"heat": GameState.heat,
 		"funds": GameState.funds,
+		"intel": GameState.intel,
+		"trust": GameState.trust,
+		"cover": GameState.cover,
+		"rival_momentum": GameState.rival_momentum,
+		"world_stability": GameState.world_stability(),
+		"collapsed_regions": GameState.collapsed_count(),
 	}
+	var region: Dictionary = GameState.get_region(region_id)
+	if not region.is_empty():
+		snapshot["region_stability"] = float(region.get("stability", 0))
+		snapshot["region_rival"] = float(region.get("rival_influence", 0))
+		snapshot["region_pressure"] = float(region.get("public_pressure", 0))
+		snapshot["local_network"] = float(region.get("local_network", 0))
+		snapshot["intel_level"] = float(region.get("intel_level", 0))
+	return snapshot

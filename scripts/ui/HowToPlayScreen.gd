@@ -30,6 +30,7 @@ func _ready() -> void:
 
 	content.add_child(_mission_card())
 	content.add_child(_flow_card())
+	content.add_child(_intelligence_card())
 	content.add_child(_resource_card())
 	content.add_child(_global_card())
 	content.add_child(_list_card("how.first.title", [
@@ -77,6 +78,16 @@ func _resource_card() -> Control:
 	box.add_child(_info_row(L10n.t("game.trust"), L10n.t("how.res.trust"), UITheme.WARN))
 	box.add_child(_info_row(L10n.t("game.cover"), L10n.t("how.res.cover"), UITheme.SAFE))
 	box.add_child(_info_row(L10n.t("game.heat"), L10n.t("how.res.heat"), UITheme.DANGER))
+	return panel
+
+
+func _intelligence_card() -> Control:
+	var panel := _card()
+	var box := _inner(panel)
+	box.add_child(UITheme.label(L10n.t("how.intelligence.title"), UITheme.FS_BODY, UITheme.ACCENT))
+	box.add_child(_step_tile(1, L10n.t("how.intelligence.map")))
+	box.add_child(_step_tile(2, L10n.t("how.intelligence.analysis")))
+	box.add_child(_step_tile(3, L10n.t("how.intelligence.identity")))
 	return panel
 
 
@@ -129,12 +140,9 @@ func _callout(text: String, color: Color) -> Control:
 
 
 func _step_tile(number: int, text: String) -> Control:
-	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", UITheme.panel_style(UITheme.CARD_RAISED, UITheme.EDGE))
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var row := HBoxContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_theme_constant_override("separation", UITheme.SPACE_S)
-	panel.add_child(row)
 	var n := UITheme.label(str(number), UITheme.FS_BODY, UITheme.ACCENT)
 	n.custom_minimum_size = Vector2(42, 0)
 	n.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -142,7 +150,7 @@ func _step_tile(number: int, text: String) -> Control:
 	var lbl := UITheme.label(text, UITheme.FS_TINY, UITheme.TEXT)
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(lbl)
-	return panel
+	return row
 
 
 func _info_row(caption: String, body: String, color: Color) -> Control:

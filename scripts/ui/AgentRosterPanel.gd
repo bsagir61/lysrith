@@ -7,6 +7,7 @@ signal agent_selected(agent_id: String)
 signal closed
 
 var _select_mode: bool = false
+var _region_id: String = ""
 var _list: VBoxContainer
 var _title_label: Label
 var _hint_label: Label
@@ -55,8 +56,9 @@ func _ready() -> void:
 	vbox.add_child(back)
 
 
-func open(select_mode: bool) -> void:
+func open(select_mode: bool, region_id: String = "") -> void:
 	_select_mode = select_mode
+	_region_id = region_id if select_mode else ""
 	_title_label.text = L10n.t("agent.select_title") if select_mode else L10n.t("agent.title")
 	_hint_label.text = L10n.t("agent.select_hint") if select_mode else L10n.t("agent.roster_hint")
 	_rebuild()
@@ -91,23 +93,31 @@ func _agent_card(agent: Dictionary) -> Control:
 	info.add_theme_constant_override("separation", 2)
 	top.add_child(info)
 	info.add_child(UITheme.label("%s / %s" % [String(agent["name"]).to_upper(), L10n.t("agent.level_short", [int(agent["level"])])], UITheme.FS_BODY, UITheme.ACCENT))
-	info.add_child(UITheme.label(String(agent["role"]), UITheme.FS_SMALL, UITheme.TEXT))
-	var trait_text: String = AgentData.trait_name(agent["trait"]) + " - " + AgentData.trait_desc(agent["trait"])
+	info.add_child(UITheme.label(_role_name(String(agent.get("role", ""))), UITheme.FS_SMALL, UITheme.TEXT))
+	var trait_id: String = String(agent.get("trait", ""))
+	var trait_text: String = L10n.t("agent_trait.%s.name" % trait_id) + " - " + L10n.t("agent_trait.%s.description" % trait_id)
 	info.add_child(UITheme.label(L10n.t("agent.trait", [trait_text]), UITheme.FS_TINY, UITheme.TEXT_DIM))
-	var status_color: Color = UITheme.SAFE if String(agent["status"]) == "Ready" else UITheme.WARN
-	var status_text: String = L10n.t("agent.ready") if String(agent["status"]) == "Ready" else L10n.t("agent.strained")
+	var strained: bool = int(agent.get("fatigue", 0)) >= Balance.FATIGUE_STRAINED_THRESHOLD
+	var status_color: Color = UITheme.WARN if strained else UITheme.SAFE
+	var status_text: String = L10n.t("agent.strained") if strained else L10n.t("agent.ready")
 	info.add_child(UITheme.label(L10n.t("agent.fatigue_status", [int(agent["fatigue"]), status_text]), UITheme.FS_TINY, status_color))
+
+	var strengths: Array[Dictionary] = _sorted_skills(agent)
+	var strength_parts: Array[String] = []
+	for i in mini(2, strengths.size()):
+		strength_parts.append("%s %d" % [L10n.t("skill.%s" % String(strengths[i]["id"])), int(strengths[i]["value"])])
+	info.add_child(UITheme.label(L10n.t("agent.strengths", [" / ".join(strength_parts)]), UITheme.FS_TINY, UITheme.ACCENT_DIM))
 
 	var skills := HBoxContainer.new()
 	skills.add_theme_constant_override("separation", UITheme.SPACE_S)
 	vbox.add_child(skills)
 	var skill_data: Array = [
-		["ANL", int(agent["analysis"])], ["FLD", int(agent["fieldcraft"])],
-		["DIP", int(agent["diplomacy"])], ["TEC", int(agent["technical"])],
-		["RSV", int(agent["resolve"])],
+		["skill.analysis.short", int(agent["analysis"])], ["skill.fieldcraft.short", int(agent["fieldcraft"])],
+		["skill.diplomacy.short", int(agent["diplomacy"])], ["skill.technical.short", int(agent["technical"])],
+		["skill.resolve.short", int(agent["resolve"])],
 	]
 	for s in skill_data:
-		var skill_name: String = String(s[0])
+		var skill_name: String = L10n.t(String(s[0]))
 		var skill_value: int = int(s[1])
 		var chip_text: String = skill_name + " " + str(skill_value)
 		var chip := UITheme.label(chip_text, UITheme.FS_TINY, UITheme.level_color(float(skill_value) * 10.0))
@@ -117,6 +127,22 @@ func _agent_card(agent: Dictionary) -> Control:
 		skills.add_child(chip)
 
 	if _select_mode:
+		var region: Dictionary = GameState.get_region(_region_id)
+		if not region.is_empty():
+			var fit: Dictionary = TurnResolver.agent_suitability(region, agent)
+			var fit_color: Color = _fit_color(String(fit.get("id", "risky")))
+			var fit_content := VBoxContainer.new()
+			fit_content.add_theme_constant_override("separation", UITheme.SPACE_XS)
+			var fit_chip := UITheme.status_chip(L10n.t(String(fit.get("text_key", "agent.fit.risky"))), fit_color)
+			fit_chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			fit_content.add_child(fit_chip)
+			var best_op_id: String = String(fit.get("best_op_id", ""))
+			if best_op_id != "":
+				fit_content.add_child(UITheme.label(L10n.t("agent.fit.best", [
+					L10n.t("operation.%s.name" % best_op_id),
+					int(fit.get("best_chance", 0)),
+				]), UITheme.FS_TINY, UITheme.TEXT_DIM))
+			vbox.add_child(fit_content)
 		var pick := UITheme.button(L10n.t("agent.select"), "primary", true)
 		pick.pressed.connect(func() -> void:
 			visible = false
@@ -124,3 +150,27 @@ func _agent_card(agent: Dictionary) -> Control:
 			agent_selected.emit(String(agent["id"])))
 		vbox.add_child(pick)
 	return panel
+
+
+func _sorted_skills(agent: Dictionary) -> Array[Dictionary]:
+	var skills: Array[Dictionary] = []
+	for skill_id in ["analysis", "fieldcraft", "diplomacy", "technical", "resolve"]:
+		skills.append({"id": skill_id, "value": int(agent.get(skill_id, 0))})
+	skills.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a["value"]) > int(b["value"]))
+	return skills
+
+
+func _role_name(role: String) -> String:
+	var key: String = "agent_role.%s" % role.to_lower().replace(" ", "_")
+	return L10n.t(key)
+
+
+func _fit_color(id: String) -> Color:
+	match id:
+		"strong": return UITheme.SAFE
+		"viable": return UITheme.ACCENT
+		"specialist": return UITheme.SAFE
+		"tradeoff": return UITheme.WARN
+		"exhausted": return UITheme.DANGER
+	return UITheme.WARN

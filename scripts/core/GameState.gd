@@ -213,7 +213,10 @@ func apply_effects(effects: Dictionary) -> Array[String]:
 			if not hidden.is_empty():
 				var reg: Dictionary = RandomService.pick(hidden)
 				reg["tag_revealed"] = true
-				lines.append("%s identified as: %s" % [reg["name"], reg["hidden_tag"]])
+				lines.append(L10n.t("resolve.event_identity_revealed", [
+					reg["name"],
+					L10n.t(RegionTagRules.name_key(String(reg["hidden_tag"]))),
+				]))
 				region_updated.emit(reg["id"])
 
 	if effects.has("all_stability"):

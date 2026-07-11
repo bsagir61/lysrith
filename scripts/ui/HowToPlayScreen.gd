@@ -158,7 +158,6 @@ func _info_row(caption: String, body: String, color: Color) -> Control:
 	row.add_theme_constant_override("separation", UITheme.SPACE_S)
 	var cap := UITheme.label(caption, UITheme.FS_TINY, color)
 	cap.custom_minimum_size = Vector2(190, 0)
-	cap.autowrap_mode = TextServer.AUTOWRAP_OFF
 	row.add_child(cap)
 	var lbl := UITheme.label(body, UITheme.FS_TINY, UITheme.TEXT_DIM)
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL

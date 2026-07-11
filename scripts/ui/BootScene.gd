@@ -22,12 +22,12 @@ func _ready() -> void:
 		t.modulate.a = 0.0
 		sub.modulate.a = 0.0
 		var tween := create_tween()
-		tween.tween_property(t, "modulate:a", 1.0, 0.5)
-		tween.parallel().tween_property(sub, "modulate:a", 1.0, 0.7)
+		tween.tween_property(t, "modulate:a", 1.0, 0.3)
+		tween.parallel().tween_property(sub, "modulate:a", 1.0, 0.45)
 
 
 func _process(delta: float) -> void:
 	_elapsed += delta
-	if _elapsed >= 1.4 or (SettingsManager.reduce_motion and _elapsed >= 0.2):
+	if _elapsed >= 0.9 or (SettingsManager.reduce_motion and _elapsed >= 0.2):
 		set_process(false)
 		UITransitions.change_scene("res://scenes/menus/MainMenu.tscn")

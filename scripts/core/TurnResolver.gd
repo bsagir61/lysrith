@@ -328,7 +328,7 @@ func resolve_operation(region_id: String, agent_id: String, op_id: String) -> Di
 	if identity_revealed:
 		GameState.add_resources({"intel": Balance.TAG_DISCOVERY_INTEL_REWARD})
 		lines.append(L10n.t("resolve.identity_revealed", [
-			String(region.get("name", region_id)),
+			_region_name(region),
 			L10n.t(RegionTagRules.name_key(identity_tag)),
 			Balance.TAG_DISCOVERY_INTEL_REWARD,
 		]))
@@ -357,9 +357,9 @@ func resolve_operation(region_id: String, agent_id: String, op_id: String) -> Di
 		"near_miss": near_miss,
 		"chance": chance,
 		"roll": roll,
-		"op_name": op.get("name", op_id),
+		"op_name": L10n.t("operation.%s.name" % op_id),
 		"op_id": op_id,
-		"region_name": region.get("name", region_id),
+		"region_name": _region_name(region),
 		"region_id": region_id,
 		"agent_name": agent.get("name", agent_id),
 		"agent_id": agent_id,
@@ -390,19 +390,19 @@ func _apply_success(region: Dictionary, agent: Dictionary, op: Dictionary, agent
 			var gained_intel: int = int(round(gain))
 			GameState.add_resources({"intel": gained_intel})
 			effect_breakdown.append(_effect("intel", Balance.OP_MAP_SIGNALS_INTEL, map_agent_mult, map_identity_mult, outcome_mult, gained_intel))
-			lines.append(L10n.t("resolve.map_signals", [region["name"], int(region["intel_level"]), gained_intel]))
+			lines.append(L10n.t("resolve.map_signals", [_region_name(region), int(region["intel_level"]), gained_intel]))
 		"build_network":
 			var network_identity_mult: float = RegionTagRules.effect_multiplier(region, op, "network")
 			var n: int = int(round(Balance.OP_BUILD_NETWORK_GAIN * agent_mult * network_identity_mult * outcome_mult))
 			region["local_network"] = clampi(int(region["local_network"]) + n, 0, 100)
 			effect_breakdown.append(_effect("local_network", Balance.OP_BUILD_NETWORK_GAIN, agent_mult, network_identity_mult, outcome_mult, n))
-			lines.append(L10n.t("resolve.build_network", [region["name"], n, int(region["local_network"])]))
+			lines.append(L10n.t("resolve.build_network", [_region_name(region), n, int(region["local_network"])]))
 		"counter_influence":
 			var counter_identity_mult: float = RegionTagRules.effect_multiplier(region, op, "rival")
 			var cut: int = int(round(Balance.OP_COUNTER_INFLUENCE_REDUCE * agent_mult * counter_identity_mult * outcome_mult))
 			region["rival_influence"] = clampi(int(region["rival_influence"]) - cut, 0, 100)
 			effect_breakdown.append(_effect("rival_influence", Balance.OP_COUNTER_INFLUENCE_REDUCE, agent_mult, counter_identity_mult, outcome_mult, -cut))
-			lines.append(L10n.t("resolve.counter_influence", [region["name"], cut]))
+			lines.append(L10n.t("resolve.counter_influence", [_region_name(region), cut]))
 		"stabilize":
 			var stability_identity_mult: float = RegionTagRules.effect_multiplier(region, op, "stability")
 			var pressure_identity_mult: float = RegionTagRules.effect_multiplier(region, op, "pressure")
@@ -412,7 +412,7 @@ func _apply_success(region: Dictionary, agent: Dictionary, op: Dictionary, agent
 			region["public_pressure"] = clampi(int(region["public_pressure"]) - pressure_cut, 0, 100)
 			effect_breakdown.append(_effect("stability", Balance.OP_STABILIZE_GAIN, agent_mult, stability_identity_mult, outcome_mult, s))
 			effect_breakdown.append(_effect("public_pressure", Balance.OP_STABILIZE_PRESSURE_CUT, 1.0, pressure_identity_mult, outcome_mult, -pressure_cut))
-			lines.append(L10n.t("resolve.stabilize", [region["name"], s, pressure_cut]))
+			lines.append(L10n.t("resolve.stabilize", [_region_name(region), s, pressure_cut]))
 		"reduce_heat":
 			var heat_identity_mult: float = RegionTagRules.effect_multiplier(region, op, "heat")
 			var h: int = int(round(Balance.OP_REDUCE_HEAT_AMOUNT * agent_mult * heat_identity_mult * outcome_mult))
@@ -425,7 +425,7 @@ func _apply_success(region: Dictionary, agent: Dictionary, op: Dictionary, agent
 			GameState.add_resources({"rival_exposure": exposure})
 			region["rival_influence"] = clampi(int(region["rival_influence"]) - Balance.OP_TRACE_RIVAL_CUT, 0, 100)
 			effect_breakdown.append(_effect("rival_exposure", base_exposure, agent_mult, 1.0, outcome_mult, exposure))
-			lines.append(L10n.t("resolve.trace_cell", [region["name"], exposure]))
+			lines.append(L10n.t("resolve.trace_cell", [_region_name(region), exposure]))
 		"containment":
 			var containment_identity_mult: float = RegionTagRules.effect_multiplier(region, op, "stability")
 			var st: int = int(round(Balance.OP_CONTAIN_STABILITY * agent_mult * containment_identity_mult * outcome_mult))
@@ -434,18 +434,18 @@ func _apply_success(region: Dictionary, agent: Dictionary, op: Dictionary, agent
 			region["rival_influence"] = clampi(int(region["rival_influence"]) - rival_cut, 0, 100)
 			effect_breakdown.append(_effect("stability", Balance.OP_CONTAIN_STABILITY, agent_mult, containment_identity_mult, outcome_mult, st))
 			effect_breakdown.append(_effect("rival_influence", Balance.OP_CONTAIN_RIVAL_CUT, 1.0, containment_identity_mult, outcome_mult, -rival_cut))
-			lines.append(L10n.t("resolve.containment", [region["name"], st, rival_cut]))
+			lines.append(L10n.t("resolve.containment", [_region_name(region), st, rival_cut]))
 		"deep_analysis":
 			region["tag_revealed"] = true
 			region["intel_level"] = 3
-			lines.append(L10n.t("resolve.deep_analysis", [region["name"], L10n.t(RegionTagRules.name_key(String(region["hidden_tag"])))]))
+			lines.append(L10n.t("resolve.deep_analysis", [_region_name(region), L10n.t(RegionTagRules.name_key(String(region["hidden_tag"])))]))
 		"quiet_audit":
 			var audit_identity_mult: float = RegionTagRules.effect_multiplier(region, op, "trust")
 			var t: int = int(round(Balance.OP_QUIET_AUDIT_TRUST * agent_mult * audit_identity_mult * outcome_mult))
 			GameState.add_resources({"trust": t})
 			region["public_pressure"] = clampi(int(region["public_pressure"]) - Balance.OP_QUIET_AUDIT_PRESSURE_CUT, 0, 100)
 			effect_breakdown.append(_effect("trust", Balance.OP_QUIET_AUDIT_TRUST, agent_mult, audit_identity_mult, outcome_mult, t))
-			lines.append(L10n.t("resolve.quiet_audit", [t, region["name"]]))
+			lines.append(L10n.t("resolve.quiet_audit", [t, _region_name(region)]))
 	return lines
 
 
@@ -464,10 +464,10 @@ func _apply_failure(region: Dictionary, agent: Dictionary, op: Dictionary, scale
 	var stab_hit := int(round(Balance.OP_FAIL_STABILITY_HIT * rate))
 	GameState.add_resources({"heat": heat_hit, "trust": -trust_hit})
 	region["stability"] = clampi(int(region["stability"]) - stab_hit, 0, 100)
-	lines.append(L10n.t("resolve.failure", [heat_hit, trust_hit, region["name"], stab_hit]))
+	lines.append(L10n.t("resolve.failure", [heat_hit, trust_hit, _region_name(region), stab_hit]))
 	if op.get("covert", false):
 		region["surveillance"] = clampi(int(region["surveillance"]) + 5, 0, 100)
-		lines.append(L10n.t("resolve.surveillance_tightened", [region["name"]]))
+		lines.append(L10n.t("resolve.surveillance_tightened", [_region_name(region)]))
 	return lines
 
 
@@ -618,7 +618,7 @@ func _spread_rival() -> Array[String]:
 		t["rival_influence"] = clampi(int(t["rival_influence"]) + amount, 0, 100)
 		GameState.region_updated.emit(t["id"])
 	if amount > 0 and not targets.is_empty():
-		var names := ", ".join(targets.map(func(t): return String(t["name"])))
+		var names := ", ".join(targets.map(func(t): return _region_name(t)))
 		lines.append(L10n.t("resolve.rival_spread", [names]))
 	return lines
 
@@ -632,7 +632,7 @@ func _erode_and_collapse() -> Array[String]:
 		if int(r["stability"]) < Balance.COLLAPSE_STABILITY_THRESHOLD:
 			GameState.collapse_region(r)
 			GameState.add_resources({"global_exposure": Balance.COLLAPSE_EXPOSURE_SPIKE})
-			lines.append(L10n.t("resolve.region_collapsed", [r["name"]]))
+			lines.append(L10n.t("resolve.region_collapsed", [_region_name(r)]))
 			for nid in RegionData.neighbors_of(r["id"]):
 				var n: Dictionary = GameState.get_region(nid)
 				if not n.is_empty() and not n["collapsed"]:
@@ -734,3 +734,7 @@ func _snapshot_changes(before: Dictionary, after: Dictionary) -> Dictionary:
 		if not is_equal_approx(before_value, after_value):
 			changes[key] = {"before": before_value, "after": after_value, "delta": after_value - before_value}
 	return changes
+
+
+func _region_name(region: Dictionary) -> String:
+	return L10n.region_name(region)

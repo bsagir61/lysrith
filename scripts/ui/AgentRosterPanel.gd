@@ -94,6 +94,7 @@ func _agent_card(agent: Dictionary) -> Control:
 	top.add_child(info)
 	info.add_child(UITheme.label("%s / %s" % [String(agent["name"]).to_upper(), L10n.t("agent.level_short", [int(agent["level"])])], UITheme.FS_BODY, UITheme.ACCENT))
 	info.add_child(UITheme.label(_role_name(String(agent.get("role", ""))), UITheme.FS_SMALL, UITheme.TEXT))
+	info.add_child(UITheme.label(L10n.t("agent.%s.bio" % String(agent["id"])), UITheme.FS_TINY, UITheme.TEXT_DIM))
 	var trait_id: String = String(agent.get("trait", ""))
 	var trait_text: String = L10n.t("agent_trait.%s.name" % trait_id) + " - " + L10n.t("agent_trait.%s.description" % trait_id)
 	info.add_child(UITheme.label(L10n.t("agent.trait", [trait_text]), UITheme.FS_TINY, UITheme.TEXT_DIM))

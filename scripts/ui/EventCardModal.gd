@@ -76,17 +76,17 @@ func _rebuild() -> void:
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", UITheme.SPACE_S)
 	scroll.add_child(body)
-	body.add_child(UITheme.label(String(_event["title"]).to_upper(), UITheme.FS_BODY, UITheme.TEXT))
-	body.add_child(UITheme.label(String(_event["desc"]), UITheme.FS_SMALL, UITheme.TEXT_DIM))
+	var event_id: String = String(_event.get("id", ""))
+	body.add_child(UITheme.label(L10n.t("event.%s.title" % event_id).to_upper(), UITheme.FS_BODY, UITheme.TEXT))
+	body.add_child(UITheme.label(L10n.t("event.%s.desc" % event_id), UITheme.FS_SMALL, UITheme.TEXT_DIM))
 	body.add_child(UITheme.spacer(UITheme.SPACE_XS))
 
 	var choices: Array = _event.get("choices", [])
 	for i in choices.size():
-		var choice: Dictionary = choices[i]
-		var btn: Button = UITheme.button(String(choice["text"]), "ghost", true)
+		var btn: Button = UITheme.button(L10n.t("event.%s.choice.%d.text" % [event_id, i]), "ghost", true)
 		btn.pressed.connect(_on_choice.bind(i))
 		body.add_child(btn)
-		var note: Label = UITheme.label(String(choice.get("note", "")), UITheme.FS_TINY, UITheme.TEXT_DIM)
+		var note: Label = UITheme.label(L10n.t("event.%s.choice.%d.note" % [event_id, i]), UITheme.FS_TINY, UITheme.TEXT_DIM)
 		note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		body.add_child(note)
 

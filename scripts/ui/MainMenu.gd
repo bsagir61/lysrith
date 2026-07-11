@@ -22,13 +22,14 @@ func _ready() -> void:
 	vbox.add_child(sub)
 	vbox.add_child(UITheme.spacer(UITheme.SPACE_XL))
 
-	var new_btn := UITheme.button(L10n.t("menu.new_game"), "primary")
+	var has_save: bool = SaveManager.has_save()
+	var new_btn := UITheme.button(L10n.t("menu.new_game"), "ghost" if has_save else "primary")
 	new_btn.pressed.connect(func() -> void:
 		UITransitions.change_scene("res://scenes/menus/NewGameSetup.tscn"))
 	vbox.add_child(new_btn)
 
-	var continue_btn := UITheme.button(L10n.t("menu.continue"), "ghost")
-	if SaveManager.has_save():
+	var continue_btn := UITheme.button(L10n.t("menu.continue"), "primary" if has_save else "ghost")
+	if has_save:
 		continue_btn.pressed.connect(_on_continue)
 	else:
 		continue_btn.disabled = true

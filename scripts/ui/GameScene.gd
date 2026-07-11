@@ -318,7 +318,7 @@ func _build_panels() -> void:
 
 func _build_tutorial_banner(parent: Container) -> void:
 	_tutorial_banner = PanelContainer.new()
-	var style := UITheme.panel_style(UITheme.CARD, UITheme.ACCENT_DIM, 10)
+	var style := UITheme.panel_style(UITheme.CARD, UITheme.ACCENT_DIM, UITheme.RADIUS)
 	style.set_content_margin_all(UITheme.SPACE_S)
 	_tutorial_banner.add_theme_stylebox_override("panel", style)
 	_tutorial_banner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -726,7 +726,7 @@ func _on_event_choice(choice_index: int) -> void:
 		lines.append(L10n.t("game.no_consequence"))
 	_debrief_mode = "event"
 	_set_step(L10n.t("game.step_result"), L10n.t("game.step_result_next_detail"))
-	_debrief.open(String(event["title"]), "neutral", lines, before)
+	_debrief.open(L10n.t("event.%s.title" % String(event["id"])), "neutral", lines, before)
 
 
 func _finish_cycle() -> void:

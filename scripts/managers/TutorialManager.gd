@@ -4,25 +4,27 @@ extends Node
 ## when to advance and what guidance text to show. Fully skippable.
 
 signal step_changed(text: String)
+signal context_hint(text: String)
 signal tutorial_finished
 
-## Each step: text shown in the tutorial banner + the action that advances it.
+## Each step: localization key shown in the tutorial banner + the action that advances it.
 ## Steps with advance "tap" continue when the banner itself is tapped.
 const STEPS: Array = [
-	{"advance": "region_selected", "text": "Welcome, Director. Tap any region node on the map to open its dossier."},
-	{"advance": "region_read", "text": "This is the region dossier. Stability, Rival Influence and Surveillance decide how risky work here will be. Tap PLAN OPERATION."},
-	{"advance": "roster_opened", "text": "Every operation needs an agent. This is your roster."},
-	{"advance": "agent_selected", "text": "Each agent is better at some work than others. Select any agent to continue."},
-	{"advance": "map_signals_selected", "text": "Operations show cost, odds and Heat before you commit. Choose MAP SIGNALS - the safest way to learn a region."},
-	{"advance": "operation_resolved", "text": "Confirm the operation and read the debrief."},
-	{"advance": "tap", "text": "INTEL is your analytical currency. Spend it on Deep Analysis and predictions. Earn it by mapping signals. (Tap to continue)"},
-	{"advance": "tap", "text": "HEAT is how visible you are. High Heat feeds Global Exposure and triggers hostile events. Cool it down before it burns you. (Tap to continue)"},
-	{"advance": "tap", "text": "RIVAL NETWORK EXPOSURE is your victory meter. Build local networks, then run Trace Rival Cell to push it to 100. (Tap to continue)"},
-	{"advance": "tap", "text": "The rest is judgment. Watch the map, spend carefully, and expose them before the world unravels. Good luck, Director. (Tap to finish)"},
+	{"advance": "region_selected", "text_key": "tutorial.region"},
+	{"advance": "region_read", "text_key": "tutorial.region_read"},
+	{"advance": "agent_selected", "text_key": "tutorial.agent"},
+	{"advance": "map_signals_selected", "text_key": "tutorial.map_signals"},
+	{"advance": "operation_resolved", "text_key": "tutorial.resolve"},
+	{"advance": "tap", "text_key": "tutorial.intel_identity"},
+	{"advance": "tap", "text_key": "tutorial.heat_network"},
+	{"advance": "tap", "text_key": "tutorial.rival"},
+	{"advance": "tap", "text_key": "tutorial.finish"},
 ]
 
 var active: bool = false
 var step_index: int = 0
+var _identity_hint_shown: bool = false
+var _context_active: bool = false
 
 
 func should_run() -> bool:
@@ -32,12 +34,14 @@ func should_run() -> bool:
 func start() -> void:
 	active = true
 	step_index = 0
+	_identity_hint_shown = false
+	_context_active = false
 	step_changed.emit(current_text())
 
 
 func current_text() -> String:
 	if step_index < STEPS.size():
-		return STEPS[step_index]["text"]
+		return L10n.t(String(STEPS[step_index]["text_key"]))
 	return ""
 
 
@@ -45,11 +49,20 @@ func current_text() -> String:
 func notify(action: String) -> void:
 	if not active or step_index >= STEPS.size():
 		return
+	if action == "identity_revealed" and not _identity_hint_shown:
+		_identity_hint_shown = true
+		_context_active = true
+		context_hint.emit(L10n.t("tutorial.identity_revealed"))
+		return
+	if _context_active and action == "tap":
+		_context_active = false
+		step_changed.emit(current_text())
+		return
 	if STEPS[step_index]["advance"] == action:
 		step_index += 1
 		if step_index >= STEPS.size():
 			_finish()
-		else:
+		elif not _context_active:
 			step_changed.emit(current_text())
 
 
@@ -60,6 +73,7 @@ func skip() -> void:
 
 func _finish() -> void:
 	active = false
+	_context_active = false
 	GameState.tutorial_done = true
 	SettingsManager.tutorial_completed = true
 	SettingsManager.save_settings()

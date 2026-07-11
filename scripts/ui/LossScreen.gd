@@ -14,19 +14,19 @@ func _ready() -> void:
 	vbox.add_theme_constant_override("separation", UITheme.SPACE_M)
 	margin.add_child(vbox)
 
-	vbox.add_child(UITheme.title("DIRECTORATE DOWN", UITheme.FS_HUGE, UITheme.DANGER))
-	var reason := UITheme.label(String(GameState.last_end.get("reason", "The campaign has ended.")), UITheme.FS_BODY, UITheme.TEXT)
+	vbox.add_child(UITheme.title(L10n.t("loss.title"), UITheme.FS_HUGE, UITheme.DANGER))
+	var reason := UITheme.label(String(GameState.last_end.get("reason", L10n.t("loss.fallback"))), UITheme.FS_BODY, UITheme.TEXT)
 	reason.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(reason)
 	vbox.add_child(UITheme.spacer(UITheme.SPACE_M))
 	vbox.add_child(_summary_card())
 	vbox.add_child(UITheme.spacer(UITheme.SPACE_M))
 
-	var again := UITheme.button("TRY AGAIN", "primary")
+	var again := UITheme.button(L10n.t("end.try_again"), "primary")
 	again.pressed.connect(func() -> void:
 		UITransitions.change_scene("res://scenes/menus/NewGameSetup.tscn"))
 	vbox.add_child(again)
-	var menu := UITheme.button("MAIN MENU", "ghost", true)
+	var menu := UITheme.button(L10n.t("common.main_menu"), "ghost", true)
 	menu.pressed.connect(func() -> void:
 		UITransitions.change_scene("res://scenes/menus/MainMenu.tscn"))
 	vbox.add_child(menu)
@@ -40,11 +40,11 @@ func _summary_card() -> Control:
 	panel.add_child(box)
 	var s: Dictionary = GameState.stats
 	var rows := [
-		"Turns survived: %d" % GameState.turn,
-		"Operations run: %d (%d successful)" % [int(s.get("ops_run", 0)), int(s.get("ops_won", 0))],
-		"Rival network exposed: %d%%" % int(GameState.rival_exposure),
-		"Regions lost: %d" % int(s.get("regions_lost", 0)),
-		"Posture: %s" % Balance.difficulty_name(GameState.difficulty),
+		L10n.t("end.turns", [GameState.turn]),
+		L10n.t("end.ops", [int(s.get("ops_run", 0)), int(s.get("ops_won", 0))]),
+		L10n.t("end.rival", [int(GameState.rival_exposure)]),
+		L10n.t("end.regions", [int(s.get("regions_lost", 0))]),
+		L10n.t("end.posture", [L10n.t("difficulty.%d.name" % GameState.difficulty)]),
 	]
 	for r in rows:
 		box.add_child(UITheme.label(r, UITheme.FS_SMALL, UITheme.TEXT_DIM))

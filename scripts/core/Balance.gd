@@ -35,6 +35,23 @@ const W_INTEL_LEVEL: float = 5.0    # per region intel level (0..3)
 const CHANCE_MIN: int = 5
 const CHANCE_MAX: int = 95
 
+# ---------- UI warning thresholds ----------
+const UI_TRUST_DANGER_AT: int = 25
+const UI_HEAT_WARNING_AT: int = 60
+const UI_HEAT_DANGER_AT: int = 80
+const UI_GLOBAL_EXPOSURE_DANGER_AT: int = 70
+const UI_COLLAPSED_DANGER_AT: int = 3
+const UI_RIVAL_MOMENTUM_WARNING_AT: int = 70
+
+# ---------- Operation risk thresholds ----------
+const RISK_FAVORABLE_MIN: int = 75
+const RISK_UNCERTAIN_MIN: int = 55
+const RISK_RISKY_MIN: int = 35
+const CONFIRM_CHANCE_BELOW: int = 35
+const CONFIRM_HEAT_AT: int = 80
+const CONFIRM_TRUST_AT: int = 10
+const AGENT_EXHAUSTED_FATIGUE: int = 90
+
 # Trait modifiers
 const TRAIT_EXPENSIVE_CHANCE: int = 10
 const TRAIT_EXPENSIVE_COST_MULT: float = 1.5
@@ -45,6 +62,51 @@ const TRAIT_FAST_ANALYST_INTEL_MULT: float = 1.35
 const TRAIT_CALM_FAIL_MULT: float = 0.7
 const TRAIT_UNSTABLE_EFFECT_MULT: float = 1.25
 const TRAIT_UNSTABLE_EVENT_BONUS: float = 0.12
+
+# ---------- Region identity modifiers ----------
+# Modifier order is enforced in TurnResolver:
+# chance: base -> skill -> fatigue -> network -> intel -> local penalties ->
+# difficulty -> agent trait -> region identity -> clamp.
+# effect: base -> agent trait -> region identity -> near miss -> round -> clamp.
+# cost: base -> agent trait -> region identity -> round -> positive minimum.
+# Heat: base -> difficulty -> agent trait -> region identity -> round.
+const TAG_TRADE_HUB_INCOME: int = 2
+const TAG_TRADE_HUB_INCOME_CAP: int = 6
+const TAG_MEDIA_REDUCE_HEAT_MULT: float = 1.25
+const TAG_BORDER_EFFECT_MULT: float = 1.15
+const TAG_RESEARCH_MAP_INTEL_MULT: float = 1.25
+const TAG_RESEARCH_DEEP_INTEL_DISCOUNT: int = 2
+const TAG_FINANCIAL_FUNDS_MULT: float = 0.85
+const TAG_CIVIL_STABILITY_MULT: float = 1.20
+const TAG_CIVIL_PRESSURE_MULT: float = 1.15
+const TAG_SIGNAL_TRACE_CHANCE: int = 8
+const TAG_SIGNAL_MAP_CHANCE: int = 4
+const TAG_OLD_ALLIANCE_TRUST_MULT: float = 1.25
+const TAG_OLD_ALLIANCE_STABILIZE_CHANCE: int = 4
+const TAG_BLACK_MARKET_NETWORK_MULT: float = 1.25
+const TAG_BLACK_MARKET_HEAT: int = 2
+const TAG_DIPLOMATIC_CHANCE: int = 6
+const TAG_DIPLOMATIC_AUDIT_FUNDS_DISCOUNT: int = 2
+const TAG_DISCOVERY_INTEL_REWARD: int = 2
+const MIN_POSITIVE_COST: int = 1
+
+# ---------- Region assessment / advisor ----------
+const ASSESS_CRITICAL_STABILITY_AT: int = 25
+const ASSESS_UNSTABLE_STABILITY_AT: int = 45
+const ASSESS_CONTESTED_RIVAL_AT: int = 60
+const ASSESS_PROMISING_OPPORTUNITY_AT: int = 65
+const ASSESS_STABLE_STABILITY_AT: int = 65
+const ASSESS_STABLE_RIVAL_BELOW: int = 40
+const ADVISOR_STABILITY_AT: int = 45
+const ADVISOR_RIVAL_AT: int = 55
+const ADVISOR_SURVEILLANCE_AT: int = 60
+const ADVISOR_PRESSURE_AT: int = 60
+const ADVISOR_LOW_NETWORK_BELOW: int = 35
+const ADVISOR_TRACE_NETWORK_AT: int = 50
+const ADVISOR_HIGH_HEAT_AT: int = 60
+const ADVISOR_MAX_RECOMMENDATIONS: int = 3
+const OUTLOOK_ACTIVITY_MODERATE_AT: int = 35
+const OUTLOOK_ACTIVITY_HIGH_AT: int = 70
 
 # ---------- Operation effect magnitudes ----------
 const OP_MAP_SIGNALS_INTEL: int = 8

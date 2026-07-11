@@ -17,17 +17,24 @@ func _ready() -> void:
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(dim)
 
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", UITheme.SPACE_M)
+	margin.add_theme_constant_override("margin_right", UITheme.SPACE_M)
+	margin.add_theme_constant_override("margin_top", UITheme.SPACE_M)
+	margin.add_theme_constant_override("margin_bottom", UITheme.SPACE_M)
+	add_child(margin)
+
 	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(center)
+	margin.add_child(center)
 
 	_card = PanelContainer.new()
 	_card.add_theme_stylebox_override("panel", UITheme.panel_style(UITheme.BG_PANEL, UITheme.EDGE_BRIGHT))
-	_card.custom_minimum_size = Vector2(940, 0)
+	_card.custom_minimum_size = Vector2(UITheme.MODAL_WIDTH, UITheme.MODAL_HEIGHT)
 	center.add_child(_card)
 
 	_content = VBoxContainer.new()
+	_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_content.add_theme_constant_override("separation", UITheme.SPACE_S)
 	_card.add_child(_content)
 
@@ -48,30 +55,40 @@ func _rebuild() -> void:
 	for child in _content.get_children():
 		child.queue_free()
 
-	var tone := String(_event.get("tone", "world"))
+	var tone: String = String(_event.get("tone", "world"))
+	var tone_key: String = "tone." + tone
 	var tone_color: Color = {
 		"pressure": UITheme.WARN, "internal": UITheme.ACCENT_DIM,
 		"rival": UITheme.DANGER, "world": UITheme.TEXT_DIM,
 		"opportunity": UITheme.SAFE,
 	}.get(tone, UITheme.TEXT_DIM)
 
-	# Dossier strip.
-	var strip := UITheme.label("INCOMING REPORT  ·  " + tone.to_upper(), 22, tone_color)
+	var strip := UITheme.label(L10n.t("event.strip", [L10n.t(tone_key)]), UITheme.FS_TINY, tone_color)
 	_content.add_child(strip)
 	_content.add_child(UITheme.hseparator())
-	_content.add_child(UITheme.label(String(_event["title"]).to_upper(), UITheme.FS_LARGE, UITheme.TEXT))
-	_content.add_child(UITheme.label(String(_event["desc"]), UITheme.FS_SMALL, UITheme.TEXT_DIM))
-	_content.add_child(UITheme.spacer(UITheme.SPACE_XS))
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_content.add_child(scroll)
+
+	var body := VBoxContainer.new()
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", UITheme.SPACE_S)
+	scroll.add_child(body)
+	body.add_child(UITheme.label(String(_event["title"]).to_upper(), UITheme.FS_BODY, UITheme.TEXT))
+	body.add_child(UITheme.label(String(_event["desc"]), UITheme.FS_SMALL, UITheme.TEXT_DIM))
+	body.add_child(UITheme.spacer(UITheme.SPACE_XS))
 
 	var choices: Array = _event.get("choices", [])
 	for i in choices.size():
 		var choice: Dictionary = choices[i]
-		var btn := UITheme.button(String(choice["text"]), "ghost")
+		var btn: Button = UITheme.button(String(choice["text"]), "ghost", true)
 		btn.pressed.connect(_on_choice.bind(i))
-		_content.add_child(btn)
-		var note := UITheme.label(String(choice.get("note", "")), 22, UITheme.TEXT_DIM)
+		body.add_child(btn)
+		var note: Label = UITheme.label(String(choice.get("note", "")), UITheme.FS_TINY, UITheme.TEXT_DIM)
 		note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_content.add_child(note)
+		body.add_child(note)
 
 
 func _on_choice(index: int) -> void:

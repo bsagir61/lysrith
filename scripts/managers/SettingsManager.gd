@@ -11,6 +11,7 @@ var haptics_enabled: bool = true
 var large_text: bool = false
 var reduce_motion: bool = false
 var tutorial_completed: bool = false
+var language_code: String = "en"
 
 
 func _ready() -> void:
@@ -26,6 +27,7 @@ func load_settings() -> void:
 	haptics_enabled = bool(cfg.get_value("input", "haptics", true))
 	large_text = bool(cfg.get_value("display", "large_text", false))
 	reduce_motion = bool(cfg.get_value("display", "reduce_motion", false))
+	language_code = String(cfg.get_value("display", "language_code", "en"))
 	tutorial_completed = bool(cfg.get_value("progress", "tutorial_completed", false))
 
 
@@ -36,6 +38,7 @@ func save_settings() -> void:
 	cfg.set_value("input", "haptics", haptics_enabled)
 	cfg.set_value("display", "large_text", large_text)
 	cfg.set_value("display", "reduce_motion", reduce_motion)
+	cfg.set_value("display", "language_code", language_code)
 	cfg.set_value("progress", "tutorial_completed", tutorial_completed)
 	cfg.save(SETTINGS_PATH)
 	settings_changed.emit()

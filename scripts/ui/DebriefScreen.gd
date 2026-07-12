@@ -74,8 +74,6 @@ func open(title_text: String, kind: String, lines: Array, before: Dictionary, co
 	else:
 		_add_line_section(body, L10n.t("debrief.section.effects"), lines, UITheme.TEXT)
 
-	_add_changes(body, before, String(context.get("region_id", "")))
-
 	var cont := UITheme.button(L10n.t("common.continue"), "primary")
 	cont.pressed.connect(func() -> void:
 		visible = false
